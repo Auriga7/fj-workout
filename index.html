@@ -88,15 +88,22 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .header h1 .sub{font-size:12px;font-weight:500;color:var(--fg-mute);display:block;margin-top:2px}
 .section-title{font-size:14px;font-weight:700;color:var(--fg-dim);margin:18px 0 10px;letter-spacing:.3px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
 .section-title:first-child{margin-top:0}
-.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px;min-width:0}
 .card.dense{padding:10px}
 .card h3{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .card h3 svg{width:18px;height:18px;color:var(--primary)}
-.row{display:flex;gap:10px;align-items:center}
+.row{display:flex;gap:10px;align-items:center;min-width:0}
 .row.wrap{flex-wrap:wrap}
-.row.between{justify-content:space-between}
+.row.between{justify-content:space-between;gap:8px}
+.row.between > *:last-child{flex-shrink:0}
+.row.between > *:first-child{min-width:0}
+.card .row.between span,.card .row.between .dim{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .row.between > .row{min-width:0;flex-shrink:1;overflow:hidden}
+.card .row.between .toggle{flex-shrink:0}
+.card .row.between .tag{flex-shrink:0}
 .col{display:flex;flex-direction:column;gap:10px}
-.grid{display:grid;gap:10px}
+.grid{display:grid;gap:10px;min-width:0}
+.grid > *{min-width:0;overflow:hidden}
 .grid-2{grid-template-columns:1fr 1fr}
 .grid-3{grid-template-columns:repeat(3,1fr)}
 .grid-4{grid-template-columns:repeat(4,1fr)}
@@ -230,7 +237,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .heat-cell.l4{background:var(--primary)}
 
 /* Toggle */
-.toggle{position:relative;width:42px;height:24px;background:var(--bg-soft);border-radius:99px;cursor:pointer;border:1px solid var(--border);transition:.2s;flex-shrink:0}
+.toggle{position:relative;width:42px;height:24px;background:var(--bg-soft);border-radius:99px;cursor:pointer;border:1px solid var(--border);transition:.2s;flex-shrink:0;overflow:hidden}
 .toggle.on{background:var(--primary);border-color:var(--primary)}
 .toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s}
 .toggle.on::after{transform:translateX(18px)}
@@ -4036,7 +4043,7 @@ function renderMe(){
   html += `<div class="card">
     <div class="row between" style="padding:8px 0">
       <span class="dim">当前循环</span>
-      <span class="tag primary">${DB.plans.currentCycle}循环</span>
+      <span class="tag primary" style="flex-shrink:0">${DB.plans.currentCycle}循环</span>
     </div>
     <div class="muted" style="font-size:12px;margin-bottom:10px">自动按 A→B→A 顺序推进，完成全部4次训练后自动切换。也可手动切换。</div>
     <div class="grid grid-2" style="gap:8px">
