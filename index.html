@@ -160,9 +160,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .otter-stage .pct{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);backdrop-filter:blur(8px);padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;z-index:3;color:var(--info)}
 
 /* Calendar */
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;overflow:hidden}
 .cal .dow{text-align:center;font-size:10px;color:var(--fg-mute);padding:6px 0;font-weight:600}
-.cal .day{aspect-ratio:1/1;border-radius:8px;background:var(--bg-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:12px;font-weight:600;border:1px solid transparent;transition:.15s;position:relative;gap:1px}
+.cal .day{aspect-ratio:1/1;border-radius:8px;background:var(--bg-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:12px;font-weight:600;border:1px solid transparent;transition:.15s;position:relative;gap:1px;min-width:0}
 .cal .day:hover{border-color:var(--border)}
 .cal .day.today{border-color:var(--primary)}
 .cal .day.has-workout{background:var(--primary-soft);color:var(--primary)}
@@ -171,6 +171,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .cal .day .dot{width:4px;height:4px;border-radius:50%;background:var(--primary)}
 .cal .day .dot.accent{background:var(--accent)}
 .cal .day.empty{background:transparent;cursor:default}
+
+/* Habit chip grid fix */
+.habit-grid{align-items:start}
+.habit-grid > *{align-self:start}
+.habit-grid svg{width:20px;height:20px}
 
 /* Exercise entry */
 .ex-block{background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px}
@@ -271,10 +276,20 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   .header h1{font-size:20px}
   .grid-3,.grid-4{grid-template-columns:1fr 1fr}
   .set-row{grid-template-columns:18px 1fr 1fr 44px 28px 26px;font-size:11px}
+  .habit-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:380px){
+  .cal .day{font-size:11px;border-radius:6px}
+  .cal{gap:2px}
+  .habit-grid{gap:6px}
+  .habit-grid svg{width:18px;height:18px}
+  .card.dense{padding:8px}
+  .card.dense > div{font-size:12px}
 }
 @media (min-width:769px){
   .tabbar{display:none}
   .content{padding:24px 24px 40px}
+  .habit-grid{grid-template-columns:1fr 1fr 1fr 1fr}
 }
 
 /* Period badge */
@@ -686,8 +701,7 @@ function defaultData(){
       avatar:'',
       goal:'增肌减脂',bmr:1650,unit:'metric',theme:'dark',
       caloriesGoal:2200,proteinGoal:140,carbsGoal:220,fatGoal:70,
-      waterGoal:2500,sleepGoal:7.5,restBetweenSets:90,trainingGoal:'4次/周',
-      reminders:{water:true,workout:true,sleep:true}
+      waterGoal:2500,sleepGoal:7.5,restBetweenSets:90,trainingGoal:'4次/周'
     },
     workouts:[],
     body:[],
@@ -718,7 +732,6 @@ function loadDB(){
     // Merge defaults for new fields
     const def = defaultData();
     DB.settings = Object.assign({},def.settings,DB.settings||{});
-    DB.settings.reminders = Object.assign({},def.settings.reminders,DB.settings.reminders||{});
     DB.plans = DB.plans || def.plans;
     // Backfill lastScheduledDate for legacy plan entries (carryover support)
     const t=today(); const w=dow(t);
@@ -1335,7 +1348,7 @@ function renderHome(){
   // Habits
   html += `<div class="section-title">习惯打卡</div>`;
   html += `<div class="card">
-    <div class="grid grid-2">
+    <div class="grid grid-2 habit-grid">
       ${habitChip('sleepEarly','早睡',habit.sleepEarly,'i-bed')}
       ${habitChip('stretch','拉伸',habit.stretch,'i-bolt')}
       ${habitChip('meditate','冥想',habit.meditate,'i-heart')}
@@ -3275,7 +3288,7 @@ function renderLogHabit(){
     <div class="row between" style="margin-bottom:10px">
       <h3 style="margin:0">${icon('i-check')}今日习惯</h3>
     </div>
-    <div class="grid grid-2">
+    <div class="grid grid-2 habit-grid">
       <button class="card dense" style="cursor:pointer;text-align:center;background:${sleepH.sleepDuration?'var(--primary-soft)':'var(--bg-soft)'};border-color:${sleepH.sleepDuration?'var(--primary)':'var(--border)'}" onclick="openSleepModal('${todayStr}')">
         <div style="margin-bottom:4px">${icon('i-bed', sleepH.sleepDuration?'':'')}</div>
         <div style="font-weight:600;font-size:13px;color:${sleepH.sleepDuration?'var(--primary)':'var(--fg)'}">睡眠</div>
@@ -3303,12 +3316,12 @@ function renderLogHabit(){
   html += `<div class="section-title">本月打卡</div><div class="card">`;
   fields.forEach(f=>{
     const labels = {sleepEarly:'早睡',stretch:'拉伸',meditate:'冥想',drinkMore:'多喝水'};
-    html += `<div style="margin-bottom:12px"><div class="muted" style="font-size:12px;margin-bottom:4px">${labels[f]}</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">`;
+    html += `<div style="margin-bottom:12px"><div class="muted" style="font-size:12px;margin-bottom:4px">${labels[f]}</div><div class="habit-cal"><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;overflow:hidden">`;
     for(let d=1;d<=days;d++){
       const ds = `${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const h = getHabitOn(ds);
       const done = h && h[f];
-      html += `<div style="aspect-ratio:1;border-radius:3px;background:${done?'var(--primary)':'var(--bg-soft)'};display:flex;align-items:center;justify-content:center;font-size:9px;color:${done?'#000':'var(--fg-mute)'}">${d}</div>`;
+      html += `<div style="aspect-ratio:1;border-radius:3px;background:${done?'var(--primary)':'var(--bg-soft)'};display:flex;align-items:center;justify-content:center;font-size:9px;color:${done?'#000':'var(--fg-mute)'};min-width:0;overflow:hidden">${d}</div>`;
     }
     html += `</div></div>`;
   });
@@ -4033,23 +4046,6 @@ function renderMe(){
     <button class="btn ghost block" style="margin-top:10px" onclick="showPlanDetail()">${icon('i-list')}查看AB完整方案</button>
   </div>`;
 
-  // Reminders
-  html += `<div class="section-title">提醒开关</div>`;
-  html += `<div class="card">
-    <div class="row between" style="padding:8px 0">
-      <div class="row" style="gap:10px">${icon('i-drop')}<span>喝水提醒</span></div>
-      <div class="toggle ${s.reminders.water?'on':''}" onclick="toggleReminder('water')"></div>
-    </div>
-    <div class="row between" style="padding:8px 0;border-top:1px solid var(--border-soft)">
-      <div class="row" style="gap:10px">${icon('i-dumbbell')}<span>训练提醒</span></div>
-      <div class="toggle ${s.reminders.workout?'on':''}" onclick="toggleReminder('workout')"></div>
-    </div>
-    <div class="row between" style="padding:8px 0;border-top:1px solid var(--border-soft)">
-      <div class="row" style="gap:10px">${icon('i-bed')}<span>睡眠提醒</span></div>
-      <div class="toggle ${s.reminders.sleep?'on':''}" onclick="toggleReminder('sleep')"></div>
-    </div>
-  </div>`;
-
   // Theme
   html += `<div class="section-title">主题</div>`;
   html += `<div class="card">
@@ -4086,12 +4082,7 @@ function renderMe(){
   return html;
 }
 
-function toggleReminder(field){
-  DB.settings.reminders[field] = !DB.settings.reminders[field];
-  saveDB();
-  render();
-  toast(DB.settings.reminders[field]?'已开启':'已关闭');
-}
+// Theme toggle
 
 function switchCycle(cycle){
   if(DB.plans.currentCycle === cycle) return;
@@ -4427,7 +4418,7 @@ function renderOnboardStep(){
       features:[
         {i:'i-calendar',t:'月历视图',d:'查看每日训练与生理期'},
         {i:'i-trophy',t:'PR记录',d:'自动追踪个人最佳重量'},
-        {i:'i-settings',t:'完全可定制',d:'目标、提醒、主题随心调整'}
+        {i:'i-settings',t:'完全可定制',d:'目标、主题随心调整'}
       ]
     }
   ];
@@ -4693,19 +4684,6 @@ function deleteExercise(id){
 }
 
 window.addEventListener('DOMContentLoaded', init);
-
-// Online reminder simulation (uses settings)
-setInterval(()=>{
-  if(!DB || !DB.settings || !DB.settings.reminders) return;
-  const t = now();
-  // Water reminder every 2 hours during day
-  if(DB.settings.reminders.water && ['10:00','15:00','20:00'].includes(t)){
-    const todayWater = getWaterOn(today());
-    if(todayWater < DB.settings.waterGoal*0.8){
-      // Silent, just would notify if Notification API available
-    }
-  }
-},60000);
 </script>
 </body>
 </html>
