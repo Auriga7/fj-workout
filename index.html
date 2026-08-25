@@ -2,9 +2,11 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0f0f0f">
 <title>FJ · 健身工作台</title>
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="manifest" href="./manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +14,7 @@
 <style>
 :root{
   --bg:#0f0f0f; --bg-elev:#171717; --bg-card:#1c1c1c; --bg-soft:#222;
+  --chrome:rgba(15,15,15,.96);
   --fg:#f5f5f5; --fg-dim:#a8a8a8; --fg-mute:#6e6e6e;
   --primary:#00ff88; --primary-dim:#00cc6e; --primary-soft:rgba(0,255,136,.12);
   --accent:#ff6b35; --accent-dim:#cc562a; --accent-soft:rgba(255,107,53,.15);
@@ -23,6 +26,7 @@
 }
 [data-theme="light"]{
   --bg:#f5f5f5; --bg-elev:#ffffff; --bg-card:#ffffff; --bg-soft:#f0f0f0;
+  --chrome:rgba(255,255,255,.96);
   --fg:#1a1a1a; --fg-dim:#555555; --fg-mute:#888888;
   --primary:#00cc6e; --primary-dim:#009e55; --primary-soft:rgba(0,204,110,.12);
   --accent:#ff6b35; --accent-dim:#cc562a; --accent-soft:rgba(255,107,53,.15);
@@ -48,7 +52,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 ::-webkit-scrollbar-thumb:hover{background:#444}
 
 /* App Shell */
-.app{display:flex;height:100vh;overflow:hidden}
+.app{display:flex;height:100vh;height:100dvh;overflow:hidden}
 .sidebar{
   width:220px;background:var(--bg-elev);border-right:1px solid var(--border);
   display:flex;flex-direction:column;padding:18px 12px;gap:4px;flex-shrink:0;
@@ -64,10 +68,13 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .nav-item.active svg{color:var(--primary)}
 .nav-item svg{width:20px;height:20px;flex-shrink:0;color:var(--fg-dim);transition:.15s}
 
-.main{flex:1;overflow-y:auto;overflow-x:hidden;position:relative}
+.main{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;padding-top:env(safe-area-inset-top,0px)}
 .content{max-width:920px;margin:0 auto;padding:18px 16px 96px}
 .tabbar{
-  position:fixed;bottom:0;left:0;right:0;height:62px;background:rgba(15,15,15,.96);
+  position:fixed;bottom:0;left:0;right:0;height:62px;
+  height:calc(62px + env(safe-area-inset-bottom,0px));
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  background:var(--chrome);
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-top:1px solid var(--border);display:none;z-index:50;
 }
@@ -210,7 +217,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 /* Modal */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;z-index:90;padding:0}
 .modal-bg.active{display:flex}
-.modal{background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:18px;animation:slideUp .3s ease}
+.modal{background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow-y:auto;padding:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));animation:slideUp .3s ease}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
 .modal-head h2{font-size:17px;font-weight:700}
@@ -249,7 +256,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .progress>div.info{background:var(--info)}
 
 /* Onboarding */
-.onboard{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column;padding:30px 24px}
+.onboard{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column;padding:30px 24px;overflow-y:auto;padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
 .onboard.active{display:flex}
 .onboard-inner{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;max-width:380px;margin:0 auto}
 .onboard-logo{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;margin-bottom:24px}
@@ -267,7 +274,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .onboard-feat p{font-size:12px;color:var(--fg-mute);margin:0}
 
 /* Toast */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg-elev);border:1px solid var(--border);padding:10px 18px;border-radius:99px;font-size:13px;font-weight:600;z-index:300;box-shadow:var(--shadow);opacity:0;transition:.3s;pointer-events:none;max-width:90%;text-align:center}
+.toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--bg-elev);border:1px solid var(--border);padding:10px 18px;border-radius:99px;font-size:13px;font-weight:600;z-index:300;box-shadow:var(--shadow);opacity:0;transition:.3s;pointer-events:none;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
 
 /* Empty */
@@ -279,11 +286,35 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 @media (max-width:768px){
   .sidebar{display:none}
   .tabbar{display:block}
-  .content{padding:14px 12px 88px}
+  .content{padding:14px 12px calc(88px + env(safe-area-inset-bottom,0px))}
   .header h1{font-size:20px}
   .grid-3,.grid-4{grid-template-columns:1fr 1fr}
   .set-row{grid-template-columns:18px 1fr 1fr 44px 28px 26px;font-size:11px}
   .habit-grid{grid-template-columns:1fr 1fr}
+  /* 小屏 row.between 文本溢出保护 */
+  .row.between{gap:6px}
+  .card .row.between span,.card .row.between .dim{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  /* modal 在小屏占满全宽 */
+  .modal{max-width:100%;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  .modal-head h2{font-size:16px}
+  /* ex-head 小屏紧凑 */
+  .ex-head{flex-wrap:wrap;gap:6px}
+  .ex-name{flex:1 1 100%;min-width:0}
+  /* 长 tag 在小屏允许换行 */
+  .tag{white-space:nowrap}
+}
+@media (max-width:480px){
+  /* 超小屏：grid-2 也降级为 1 列以避免内容挤压 */
+  .field-row{grid-template-columns:1fr}
+  .modal{padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+  .btn{padding:8px 12px;font-size:12px}
+  .btn.sm{padding:6px 8px;font-size:11px}
+  .header h1{font-size:18px}
+  .card{padding:12px}
+  .card h3{font-size:14px}
+  /* 多按钮行允许换行 */
+  .row.between{flex-wrap:wrap}
+  .row.between > *:last-child{flex-shrink:1}
 }
 @media (max-width:380px){
   .cal .day{font-size:11px;border-radius:6px}
@@ -292,6 +323,16 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   .habit-grid svg{width:18px;height:18px}
   .card.dense{padding:8px}
   .card.dense > div{font-size:12px}
+  /* 超窄屏 grid-2 降级为单列 */
+  .grid-2{grid-template-columns:1fr}
+  .grid-3,.grid-4{grid-template-columns:1fr 1fr}
+  /* 趋势卡 3 列数据降为可滚动 */
+  .grid.grid-3{text-align:center;font-size:11px}
+  /* kv 行紧凑 */
+  .kv{font-size:12px;padding:4px 0}
+  /* 顶部 header 紧凑 */
+  .header{margin-bottom:12px}
+  .header h1 .sub{font-size:11px}
 }
 @media (min-width:769px){
   .tabbar{display:none}
@@ -708,7 +749,9 @@ function defaultData(){
       avatar:'',
       goal:'增肌减脂',bmr:1650,unit:'metric',theme:'dark',
       caloriesGoal:2200,proteinGoal:140,carbsGoal:220,fatGoal:70,
-      waterGoal:2500,sleepGoal:7.5,restBetweenSets:90,trainingGoal:'4次/周'
+      waterGoal:2500,sleepGoal:7.5,restBetweenSets:90,trainingGoal:'4次/周',
+      longTermGoal:{enabled:false,targetWeight:0,targetDate:'',goalType:'loss',startWeight:0,startDate:''},
+      lastBackup:''
     },
     workouts:[],
     body:[],
@@ -739,6 +782,8 @@ function loadDB(){
     // Merge defaults for new fields
     const def = defaultData();
     DB.settings = Object.assign({},def.settings,DB.settings||{});
+    DB.settings.longTermGoal = Object.assign({},def.settings.longTermGoal,DB.settings.longTermGoal||{});
+    DB.settings.lastBackup = DB.settings.lastBackup || '';
     DB.plans = DB.plans || def.plans;
     // Backfill lastScheduledDate for legacy plan entries (carryover support)
     const t=today(); const w=dow(t);
@@ -1050,31 +1095,50 @@ window.startTemplateWorkout = function(templateId){
 };
 
 function getTodayWorkoutWithCarryover(){
-  // Carryover-aware schedule resolver: find first uncompleted workout whose lastScheduledDate <= today,
-  // push it to today if missed, preserve A/B cycle order.
   const todayStr = today();
   const cycle = DB.plans.currentCycle;
   const planArr = DB.plans[cycle]||DB.plans.A;
-  // Workout already logged today → show logged (ignore carryover)
+  
+  // 经期自动干预
+  const periodAdj = getPeriodTrainingAdjustment();
+  if(periodAdj){
+    const w = DB.workouts.find(x=>x.date===todayStr);
+    if(w) return {plan:null, workout:w, isLogged:true, isRest:false, isCarryover:false, originalDate:null, periodInfo: periodAdj};
+    
+    if(periodAdj.type === 'rest'){
+      return {plan:null, workout:null, isLogged:false, isRest:true, isCarryover:false, isPeriodRest:true, periodMsg: periodAdj.msg, originalDate:null};
+    }
+    if(periodAdj.type === 'upperOnly'){
+      const wd = dow(todayStr);
+      let plan = planArr.find(p => p.day === wd);
+      if(plan && (plan.type || '').includes('legs')){
+        const upperType = cycle === 'A' ? 'mixedA' : 'mixedB';
+        const upperName = cycle === 'A' ? '上肢混合（经期替代）' : '上肢混合B（经期替代）';
+        plan = { ...plan, name: upperName, type: upperType, _periodModified: true };
+      }
+      if(!plan){
+        return {plan:null, workout:null, isLogged:false, isRest:true, isCarryover:false, isPeriodRest:true, periodMsg: periodAdj.msg + '（今日无计划，建议休息）', originalDate:null};
+      }
+      return {plan, workout:null, isLogged:false, isRest:false, isCarryover:false, isPeriodUpper:true, periodMsg: periodAdj.msg, originalDate:null};
+    }
+  }
+  
   const w = DB.workouts.find(x=>x.date===todayStr);
   if(w) return {plan:null, workout:w, isLogged:true, isRest:false, isCarryover:false, originalDate:null};
-  // Iterate in cycle order to find the next eligible (pending + due or overdue) workout
+  
   for(let i=0;i<planArr.length;i++){
     const item = planArr[i];
     if(item.completed) continue;
     const due = item.lastScheduledDate;
-    if(!due || due>todayStr) continue; // not yet due
+    if(!due || due>todayStr) continue;
     if(due<todayStr){
-      // Missed workout: carry it forward to today, preserve cycle/order
       const original = due;
       item.lastScheduledDate = todayStr;
       saveDB();
       return {plan:item, workout:null, isLogged:false, isRest:false, isCarryover:true, originalDate:original};
     }
-    // Normal scheduled today
     return {plan:item, workout:null, isLogged:false, isRest:false, isCarryover:false, originalDate:null};
   }
-  // No pending workouts in this cycle: mark as rest day
   return {plan:null, workout:null, isLogged:false, isRest:true, isCarryover:false, originalDate:null};
 }
 // Keep backward compat alias (unused by core flow after this patch)
@@ -1128,6 +1192,24 @@ function getPeriodStatus(){
   return {last,nextStart,daysUntil,isInPeriod,cycleLen,periodLen};
 }
 
+function getPeriodTrainingAdjustment(){
+  const ps = getPeriodStatus();
+  if(!ps || !ps.isInPeriod) return null;
+  const todayStr = today();
+  const dayNum = diffDays(todayStr, ps.last.start) + 1;
+  const flow = ps.last.flow || 'normal';
+  if(dayNum <= 3 && flow !== '少'){
+    return { type: 'rest', dayNum, flow, msg: `经期第${dayNum}天，建议休息或低强度恢复` };
+  }
+  if(dayNum >= 4 && dayNum <= 5){
+    return { type: 'upperOnly', dayNum, flow, msg: `经期第${dayNum}天，推荐低强度上肢训练` };
+  }
+  if(dayNum > 5){
+    return { type: 'normal', dayNum, flow, msg: `经期第${dayNum}天，可根据体感恢复训练` };
+  }
+  return null;
+}
+
 function ringPct(cur,goal){
   if(!goal) return 0;
   return Math.min(100, Math.round(cur/goal*100));
@@ -1156,6 +1238,246 @@ function habitStreak(field){
   return streak;
 }
 
+/* ============ 长期目标系统 ============ */
+function getLongTermGoal(){ return DB.settings.longTermGoal || null; }
+
+function getRemainingDays(targetDate){
+  if(!targetDate) return 0;
+  return Math.max(0, diffDays(targetDate, today()));
+}
+
+function getDailyDeficit(startWeight, targetWeight, remainingDays, goalType){
+  if(remainingDays <= 0) return 0;
+  const diff = Math.abs(startWeight - targetWeight);
+  const totalCal = diff * 7700;
+  return Math.round(totalCal / remainingDays);
+}
+
+function getSuggestedCalories(){
+  const g = getLongTermGoal();
+  if(!g || !g.enabled) return null;
+  const bmrVal = bmr(DB.settings);
+  const tdee = Math.round(bmrVal * 1.3); // 中等活动系数 1.3
+  const remaining = getRemainingDays(g.targetDate);
+  if(remaining <= 0) return tdee;
+  const deficit = getDailyDeficit(g.startWeight, g.targetWeight, remaining, g.goalType);
+  return g.goalType === 'loss' ? tdee - deficit : tdee + deficit;
+}
+
+function getMilestoneWeight(daysPassed){
+  const g = getLongTermGoal();
+  if(!g || !g.enabled) return null;
+  const totalDays = Math.max(1, diffDays(g.targetDate, g.startDate));
+  const progress = Math.min(1, daysPassed / totalDays);
+  const diff = g.targetWeight - g.startWeight;
+  return parseFloat((g.startWeight + diff * progress).toFixed(1));
+}
+
+function getCurrentGoalProgress(){
+  const g = getLongTermGoal();
+  if(!g || !g.enabled) return null;
+  const current = getLatestBody();
+  const currentWeight = current ? parseFloat(current.weight) : g.startWeight;
+  const totalDiff = Math.abs(g.targetWeight - g.startWeight);
+  let currentDiff = 0;
+  if(g.goalType === 'loss'){
+    currentDiff = Math.max(0, g.startWeight - currentWeight);
+  }else{
+    currentDiff = Math.max(0, currentWeight - g.startWeight);
+  }
+  if(totalDiff === 0) return { pct: 100, currentWeight, isOnTrack: true, remaining: 0 };
+  const pct = Math.min(100, Math.max(0, (currentDiff / totalDiff) * 100));
+  const totalDays = Math.max(1, diffDays(g.targetDate, g.startDate));
+  const passed = totalDays - getRemainingDays(g.targetDate);
+  const timePct = (passed / totalDays) * 100;
+  return { pct: Math.round(pct), currentWeight, isOnTrack: pct >= timePct * 0.8, remaining: getRemainingDays(g.targetDate) };
+}
+
+function openLongTermGoalModal(){
+  const g = DB.settings.longTermGoal || {};
+  const modal = document.getElementById('modal');
+  const defaultTarget = parseFloat(((getLatestBody()||{}).weight) || DB.settings.weight || 68) - 5;
+  modal.innerHTML = `<div class="modal-head"><h2>设定长期目标</h2><button class="icon-btn" onclick="closeModal()">${icon('i-x')}</button></div>
+    <div class="field"><label class="label">目标类型</label>
+      <select id="ltgType">
+        <option value="loss" ${(g.goalType||'loss')==='loss'?'selected':''}>减脂（体重下降）</option>
+        <option value="gain" ${g.goalType==='gain'?'selected':''}>增肌（体重上升）</option>
+      </select>
+    </div>
+    <div class="field"><label class="label">目标体重 (kg)</label><input type="number" step="0.1" id="ltgTarget" value="${g.targetWeight || defaultTarget}"></div>
+    <div class="field"><label class="label">目标日期</label><input type="date" id="ltgDate" value="${g.targetDate || addDays(today(), 90)}"></div>
+    <div class="field"><label class="label">起始体重 (kg)</label><input type="number" step="0.1" id="ltgStart" value="${g.startWeight || ((getLatestBody()||{}).weight) || DB.settings.weight || 68}"></div>
+    <div class="card dense" style="margin-bottom:14px;background:var(--primary-soft);border-color:var(--primary)">
+      <div style="font-size:12px;line-height:1.6;color:var(--fg-dim)">
+        <strong style="color:var(--primary)">示例：</strong>当前68kg，目标63kg，90天后达成。<br>
+        需减5kg ≈ 38500kcal，每日缺口约 427kcal。<br>
+        系统会自动生成里程碑和每日建议摄入。
+      </div>
+    </div>
+    <button class="btn block primary" onclick="saveLongTermGoal()">${icon('i-check')}保存目标</button>
+    ${g.enabled?`<button class="btn danger block" style="margin-top:8px" onclick="clearLongTermGoal()">${icon('i-trash')}清除目标</button>`:''}`;
+  document.getElementById('modalBg').classList.add('active');
+}
+
+function saveLongTermGoal(){
+  const target = parseFloat(document.getElementById('ltgTarget').value);
+  const date = document.getElementById('ltgDate').value;
+  const start = parseFloat(document.getElementById('ltgStart').value);
+  const type = document.getElementById('ltgType').value;
+  if(!target || !date || !start){ toast('请填写完整'); return; }
+  if((type==='loss' && target >= start) || (type==='gain' && target <= start)){
+    toast('目标体重与目标类型不符'); return;
+  }
+  DB.settings.longTermGoal = {
+    enabled: true,
+    targetWeight: target,
+    targetDate: date,
+    goalType: type,
+    startWeight: start,
+    startDate: today()
+  };
+  saveDB();
+  closeModal();
+  render();
+  toast('长期目标已设定');
+}
+
+function clearLongTermGoal(){
+  if(!confirm('确认清除长期目标？')) return;
+  DB.settings.longTermGoal = { enabled: false };
+  saveDB();
+  closeModal();
+  render();
+  toast('目标已清除');
+}
+
+function applySuggestedGoals(){
+  const suggested = getSuggestedCalories();
+  if(!suggested){ toast('请先设定长期目标'); return; }
+  const s = DB.settings;
+  const ratio = suggested / (s.caloriesGoal || 2200);
+  s.caloriesGoal = Math.round(suggested);
+  s.proteinGoal = Math.max(80, Math.round(s.proteinGoal * ratio));
+  s.carbsGoal = Math.max(80, Math.round(s.carbsGoal * ratio));
+  s.fatGoal = Math.max(30, Math.round(s.fatGoal * ratio));
+  saveDB();
+  render();
+  toast(`已应用建议：${s.caloriesGoal}kcal / 蛋白质${s.proteinGoal}g / 碳水${s.carbsGoal}g / 脂肪${s.fatGoal}g`);
+}
+
+/* ============ 体重趋势预测 ============ */
+function calculateWeightTrend(){
+  // 取最近 14 天身体数据
+  const bodies = DB.body.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  if(bodies.length < 2) return null;
+
+  const recent = bodies.slice(-14);
+  const n = recent.length;
+  // x = day index (0..n-1), y = weight
+  let sumX=0, sumY=0, sumXY=0, sumXX=0;
+  recent.forEach((b,i)=>{
+    const x = i;
+    const y = parseFloat(b.weight);
+    if(!isNaN(y)){
+      sumX += x; sumY += y; sumXY += x*y; sumXX += x*x;
+    }
+  });
+  const usedN = n;
+  const slope = (usedN*sumXY - sumX*sumY) / Math.max(1e-9, (usedN*sumXX - sumX*sumX));
+  const intercept = (sumY - slope*sumX) / usedN;
+
+  // 趋势方向
+  let direction = 'stable';
+  if(slope < -0.02) direction = 'down';
+  else if(slope > 0.02) direction = 'up';
+
+  // 每周变化（slope 是 kg/day）
+  const weeklyChange = parseFloat((slope * 7).toFixed(2));
+  // 每月变化
+  const monthlyChange = parseFloat((slope * 30).toFixed(2));
+
+  // 当前估算体重（按拟合直线最后一点）
+  const currentEst = parseFloat((intercept + slope * (n-1)).toFixed(1));
+  // 实际最新体重
+  const latestActual = parseFloat(bodies[bodies.length-1].weight);
+
+  // 预测：与长期目标对比
+  const ltg = getLongTermGoal();
+  let prediction = null;
+  if(ltg && ltg.enabled && Math.abs(slope) > 1e-4){
+    const target = ltg.targetWeight;
+    // currentEst + slope * daysToTarget = target
+    // daysToTarget = (target - currentEst) / slope
+    const daysToTarget = Math.round((target - currentEst) / slope);
+    if(daysToTarget > 0 && daysToTarget < 3650){
+      const predictDate = addDays(today(), daysToTarget);
+      prediction = {
+        date: predictDate,
+        days: daysToTarget,
+        fmt: fmtDate(predictDate)
+      };
+    }
+  }
+
+  // 趋势警告：方向与目标不符
+  let warning = null;
+  if(ltg && ltg.enabled){
+    if(ltg.goalType === 'loss' && direction === 'up'){
+      warning = '当前趋势过缓或方向不对，建议调整饮食或训练计划';
+    }else if(ltg.goalType === 'gain' && direction === 'down'){
+      warning = '当前趋势过缓或方向不对，建议调整饮食或训练计划';
+    }else if(direction === 'stable' && Math.abs(ltg.targetWeight - currentEst) > 0.5){
+      warning = '当前趋势过缓，建议调整饮食或训练计划';
+    }
+  }
+
+  return {
+    direction,
+    slope: parseFloat(slope.toFixed(4)),
+    weeklyChange,
+    monthlyChange,
+    currentEst,
+    latestActual,
+    dataPoints: n,
+    prediction,
+    warning
+  };
+}
+
+function renderWeightTrendCard(){
+  const t = calculateWeightTrend();
+  if(!t) return '';
+  const dirIcon = t.direction==='down'?'📉':t.direction==='up'?'📈':'➡️';
+  const dirText = t.direction==='down'?'下降':t.direction==='up'?'上升':'平稳';
+  const dirColor = t.direction==='down'?'var(--primary)':t.direction==='up'?'var(--accent)':'var(--fg-mute)';
+  let html = `<div class="card">
+    <div class="row between" style="margin-bottom:8px">
+      <span style="font-weight:700">${dirIcon} 体重趋势</span>
+      <span class="tag" style="color:${dirColor};border:1px solid ${dirColor}">${dirText}</span>
+    </div>
+    <div class="grid grid-3" style="text-align:center;font-size:12px;margin-bottom:10px">
+      <div><div class="muted" style="font-size:10px">当前体重</div><div class="v">${t.latestActual}kg</div></div>
+      <div><div class="muted" style="font-size:10px">每周变化</div><div class="v" style="color:${dirColor}">${t.weeklyChange>0?'+':''}${t.weeklyChange}kg</div></div>
+      <div><div class="muted" style="font-size:10px">每月变化</div><div class="v" style="color:${dirColor}">${t.monthlyChange>0?'+':''}${t.monthlyChange}kg</div></div>
+    </div>`;
+  if(t.prediction){
+    html += `<div class="card dense" style="background:var(--primary-soft);border-color:var(--primary);margin-bottom:8px">
+      <div style="font-size:12px;line-height:1.6">
+        <strong style="color:var(--primary)">📊 预测分析</strong><br>
+        按当前速度，预计 <strong>${t.prediction.fmt}</strong> 达到目标体重<br>
+        <span class="muted">约 ${t.prediction.days} 天后</span>
+      </div>
+    </div>`;
+  }
+  if(t.warning){
+    html += `<div class="card dense" style="background:rgba(255,176,32,.12);border-color:rgba(255,176,32,.4);margin-bottom:0">
+      <div style="font-size:12px;color:var(--accent);font-weight:600">⚠️ ${t.warning}</div>
+    </div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
 /* ============ HOME PAGE ============ */
 function renderHome(){
   const s = DB.settings;
@@ -1179,6 +1501,17 @@ function renderHome(){
     <div><h1>Hi, ${s.nickname}<span class="sub">${today()}</span></h1></div>
   </div>
   <div class="icon-btn" onclick="navigate('me')" title="个人中心">${icon('i-bell')}</div></div>`;
+
+  // 数据备份提醒横幅（>7天未备份）
+  const lastBackup = DB.settings.lastBackup;
+  const daysSinceBackup = lastBackup ? diffDays(today(), lastBackup) : 999;
+  if(daysSinceBackup > 7){
+    const txt = lastBackup ? `${daysSinceBackup}天前备份 · 建议立即备份` : '从未备份 · 建议立即备份';
+    html += `<div class="period-tip" style="background:rgba(255,176,32,.12);border-color:rgba(255,176,32,.4);cursor:pointer" onclick="exportJSON()">
+      <div class="ico" style="background:rgba(255,176,32,.2)">${icon('i-bell')}</div>
+      <div><div class="t">⚠️ ${txt}</div><div class="s">点击此处立即导出 JSON 备份</div></div>
+    </div>`;
+  }
 
   // Period tip
   if(period){
@@ -1204,15 +1537,53 @@ function renderHome(){
     </div>`;
   }
 
-  // Today's workout card
-  html += `<div class="section-title">今日训练</div>`;
-  if(tw.isRest){
+  // 长期目标进度
+  const ltg = getLongTermGoal();
+  if(ltg && ltg.enabled){
+    const progress = getCurrentGoalProgress();
+    const remaining = getRemainingDays(ltg.targetDate);
+    const totalDays = Math.max(1, diffDays(ltg.targetDate, ltg.startDate));
+    const passed = totalDays - remaining;
+    const m30 = getMilestoneWeight(Math.min(totalDays, 30));
+    
+    html += `<div class="section-title">目标进度</div>`;
     html += `<div class="card">
       <div class="row between" style="margin-bottom:8px">
-        <h3 style="margin:0">${icon('i-bed')}休息日</h3>
-        <span class="tag primary">恢复</span>
+        <span style="font-weight:700">${ltg.goalType==='loss'?'🔥 减脂':'💪 增肌'} ${ltg.startWeight}kg → ${ltg.targetWeight}kg</span>
+        <span class="tag ${progress&&progress.isOnTrack?'primary':'accent'}">${progress?progress.pct:0}%</span>
       </div>
-      <p class="muted" style="margin-bottom:10px;font-size:13px">今天没有计划训练，可以选择主动恢复</p>
+      <div class="progress" style="height:8px;margin-bottom:10px"><div style="width:${progress?progress.pct:0}%;background:${progress&&progress.isOnTrack?'var(--primary)':'var(--accent)'}"></div></div>
+      <div class="grid grid-3" style="text-align:center;font-size:12px;margin-bottom:10px">
+        <div><div class="muted" style="font-size:10px">当前体重</div><div class="v">${progress?progress.currentWeight:'-'}kg</div></div>
+        <div><div class="muted" style="font-size:10px">30天应达</div><div class="v">${m30}kg</div></div>
+        <div><div class="muted" style="font-size:10px">目标日</div><div class="v primary">${ltg.targetWeight}kg</div></div>
+      </div>
+      <div class="row between" style="font-size:11px">
+        <span class="muted">已进行 ${passed} 天</span>
+        <span class="muted">剩余 ${remaining} 天</span>
+      </div>
+    </div>`;
+  }
+
+  // 体重趋势预测
+  const trendCard = renderWeightTrendCard();
+  if(trendCard){
+    html += `<div class="section-title">体重趋势</div>`;
+    html += trendCard;
+  }
+
+  // Today's workout card
+  html += `<div class="section-title">今日训练</div>`;
+   if(tw.isRest){
+    html += `<div class="card">
+      <div class="row between" style="margin-bottom:8px">
+        <h3 style="margin:0">${icon('i-bed')}${tw.isPeriodRest ? '经期休息日' : '休息日'}</h3>
+        <span class="tag ${tw.isPeriodRest ? 'accent' : 'primary'}">${tw.isPeriodRest ? '经期' : '恢复'}</span>
+      </div>
+      <p class="muted" style="margin-bottom:10px;font-size:13px">${tw.periodMsg || '今天没有计划训练，可以选择主动恢复'}</p>
+      ${tw.isPeriodRest ? `<div style="padding:10px;border-radius:8px;background:rgba(255,107,53,.08);border:1px solid var(--accent-soft);font-size:12px;line-height:1.6;margin-bottom:10px">
+        <span class="accent" style="font-weight:700">经期建议：</span>前3天建议完全休息，可进行散步或轻度拉伸。注意保暖，多补充铁质和水分。
+      </div>` : ''}
       <div class="grid grid-2">`;
     REST_TYPES.forEach(r=>{
       html += `<button class="btn ghost" onclick="startRest('${r.key}','${today()}')">${icon(r.icon)}${r.name}</button>`;
@@ -1232,17 +1603,24 @@ function renderHome(){
         <div class="kv"><span class="k">体感</span><span class="v">${w.bodyFeel||'-'}/10</span></div>
       </div>
       <button class="btn block primary" onclick="viewWorkout('${w.id}')">查看详情</button>
+      ${tw.periodInfo && tw.periodInfo.dayNum <= 5 ? `<div style="padding:10px;border-radius:8px;background:rgba(255,107,53,.08);border:1px solid var(--accent-soft);font-size:12px;line-height:1.6;margin-top:10px">
+        <span class="accent" style="font-weight:700">经期提示：</span>经期第${tw.periodInfo.dayNum}天。${tw.periodInfo.dayNum<=3?'建议休息，如训练请降低强度。':'建议降低重量20%，避免核心压迫。'}
+      </div>` : ''}
     </div>`;
   }else if(tw.plan){
     const exs = EXERCISES[tw.plan.type]||EXERCISES.mixed;
     const carryTag = tw.isCarryover && tw.originalDate
       ? `<span class="tag danger" style="margin-left:6px">【顺延】原定${fmtDate(tw.originalDate)}</span>` : '';
-    const planTitle = tw.isCarryover ? `【顺延】${tw.plan.name}` : tw.plan.name;
+    const periodTag = tw.isPeriodUpper ? `<span class="tag accent" style="margin-left:6px">经期上肢</span>` : '';
+    const planTitle = tw.isPeriodUpper ? tw.plan.name : (tw.isCarryover ? `【顺延】${tw.plan.name}` : tw.plan.name);
     html += `<div class="card">
       <div class="row between" style="margin-bottom:8px">
-        <h3 style="margin:0">${icon('i-dumbbell')}${planTitle}${carryTag}</h3>
+        <h3 style="margin:0">${icon('i-dumbbell')}${planTitle}${carryTag}${periodTag}</h3>
         <span class="tag accent">${DB.plans.currentCycle}循环</span>
       </div>
+      ${tw.periodMsg ? `<div style="padding:10px;border-radius:8px;background:rgba(255,107,53,.08);border:1px solid var(--accent-soft);font-size:12px;line-height:1.6;margin-bottom:10px">
+        <span class="accent" style="font-weight:700">经期提示：</span>${tw.periodMsg}。建议降低重量20%，避免核心压迫动作。
+      </div>` : ''}
       <p class="muted" style="margin-bottom:10px;font-size:13px">${exs.length}个动作 · 预计 ${exs.length*4*1.5|0} 分钟${tw.isCarryover?' · 漏练顺延，今日补做':''}</p>
     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
       ${exs.map(e=>`<div class="row between" style="padding:10px 12px;border-radius:8px;background:var(--bg-soft);cursor:pointer;border:1px solid var(--border)" onclick="showExerciseDemo('${e.n}','${e.m}')">
@@ -1553,10 +1931,58 @@ function renderTrain(){
   });
   html += `</div></div>`;
 
+  // 检查选中日期是否处于经期
+  const selPeriod = (() => {
+    if(!DB.period.length) return null;
+    const p = DB.period.find(x => selected >= x.start && selected <= (x.end || addDays(x.start, 4)));
+    if(!p) return null;
+    const dayNum = diffDays(selected, p.start) + 1;
+    return { ...p, dayNum };
+  })();
+  
   // Selected day
   html += `<div class="section-title">${fmtDate(selected)} ${'日一二三四五六'[dow(selected)]}</div>`;
+  
   if(selW){
     html += renderWorkoutSummary(selW);
+    if(selPeriod && selPeriod.dayNum <= 5){
+      html += `<div class="card" style="border-color:var(--accent);background:rgba(255,107,53,.08);margin-top:10px">
+        <div style="font-size:12px;line-height:1.6">
+          <span class="accent" style="font-weight:700">经期记录：</span>经期第${selPeriod.dayNum}天${selPeriod.dayNum<=3?'（建议休息期，但你进行了训练/恢复）':'（低强度上肢训练日）'}。
+        </div>
+      </div>`;
+    }
+  }else if(selPeriod && selPeriod.dayNum <= 3 && selPeriod.flow !== '少'){
+    html += `<div class="card">
+      <div class="row between" style="margin-bottom:8px">
+        <h3 style="margin:0">${icon('i-heart')}经期第${selPeriod.dayNum}天</h3>
+        <span class="tag accent">强制休息</span>
+      </div>
+      <p class="muted" style="margin-bottom:10px;font-size:13px">经期前3天建议完全休息或低强度恢复，可进行散步、拉伸。</p>
+      <div class="grid grid-2">
+        ${REST_TYPES.map(r=>`<button class="btn ghost" onclick="startRest('${r.key}','${selected}')">${icon(r.icon)}${r.name}</button>`).join('')}
+      </div>
+    </div>`;
+  }else if(selPeriod && selPeriod.dayNum >= 4 && selPeriod.dayNum <= 5){
+    const wd = dow(selected);
+    const arr = DB.plans[DB.plans.currentCycle]||DB.plans.A;
+    let plan = arr.find(x=>x.day===wd);
+    let isLegs = plan && (plan.type||'').includes('legs');
+    let displayName = isLegs ? '上肢混合（经期替代）' : (plan ? plan.name : '休息日');
+    
+    html += `<div class="card">
+      <div class="row between" style="margin-bottom:8px">
+        <h3 style="margin:0">${icon('i-dumbbell')}${displayName}</h3>
+        <span class="tag accent">经期第${selPeriod.dayNum}天</span>
+      </div>
+      <div style="padding:10px;border-radius:8px;background:rgba(255,107,53,.08);border:1px solid var(--accent-soft);font-size:12px;line-height:1.6;margin-bottom:10px">
+        <span class="accent" style="font-weight:700">经期提示：</span>推荐低强度上肢训练，跳过腿部动作。建议降低重量20%，避免核心压迫。
+      </div>
+      ${plan && !isLegs ? 
+        `<button class="btn block primary" onclick="startWorkoutForToday()">${icon('i-play')}开始训练</button>` : 
+        `<button class="btn block primary" onclick="startPeriodUpperWorkout('${selected}')">${icon('i-play')}开始经期上肢训练</button>`
+      }
+    </div>`;
   }else if(selPlan){
     html += `<div class="card">
       <div class="row between" style="margin-bottom:8px">
@@ -1845,6 +2271,7 @@ function startWorkoutForToday(){
   if(todayStr===today()){
     // Use carryover-aware plan for today
     const tw = getTodayWorkoutWithCarryover();
+
     p = tw.plan;
     if(!p && !tw.isRest){ toast('今日训练状态异常，请重试'); return; }
     if(tw.isRest){ toast('今天是休息日'); return; }
@@ -1868,9 +2295,41 @@ function startWorkoutForToday(){
   renderActiveWorkout();
 }
 
+function startPeriodUpperWorkout(date){
+  const cycle = DB.plans.currentCycle;
+  const upperType = cycle === 'A' ? 'mixedA' : 'mixedB';
+  const planName = cycle === 'A' ? '上肢混合（经期替代）' : '上肢混合B（经期替代）';
+  
+  if(DB.workouts.some(w=>w.date===date)){
+    toast('该日期已有训练记录');
+    return;
+  }
+  
+  const exs = EXERCISES[upperType]||EXERCISES.mixed;
+  activeWorkout = {
+    date: date,
+    plan: { name: planName, type: upperType, _periodModified: true },
+    warmups: WARMUPS.map(w=>({name:w,done:false,duration:0})),
+    exercises: exs.map((e,i)=>({
+      id:uid(), name:e.n, muscle:e.m, supersetId:e.sup?`ss${i}`:null,
+      sets:[{weight:'',reps:'',rpe:'',failure:false,note:''}], notes:''
+    })),
+    stretches: STRETCHES.map(s=>({name:s,done:false,duration:0})),
+    startTime: Date.now(), phase: 'warmup',
+    isPeriodUpper: true
+  };
+  renderActiveWorkout();
+  toast('已加载经期上肢替代训练，建议降低重量20%');
+}
+
 function renderActiveWorkout(){
   if(!activeWorkout) { render(); return; }
   const aw = activeWorkout;
+  
+  // 经期训练提示
+  const periodAdj = getPeriodTrainingAdjustment();
+  const isPeriodTraining = periodAdj && periodAdj.type === 'upperOnly';
+  
   const c = document.getElementById('content');
   const wDone = aw.warmups.filter(w=>w.done).length;
   const sDone = aw.stretches.filter(s=>s.done).length;
@@ -1887,7 +2346,15 @@ function renderActiveWorkout(){
         <div><div class="muted" style="font-size:11px">拉伸</div><div class="big accent">${sDone}/${aw.stretches.length}</div></div>
         <div><div class="muted" style="font-size:11px">计时</div><div class="big" id="wkTimer">00:00</div></div>
       </div>
-    </div>
+      </div>
+    ${isPeriodTraining ? `<div class="card" style="border-color:var(--accent);background:rgba(255,107,53,.08);margin-bottom:12px">
+      <div class="row" style="gap:10px;align-items:center">
+        <div class="ico" style="background:var(--accent-soft);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">${icon('i-heart')}</div>
+        <div style="font-size:13px;line-height:1.6">
+          <span class="accent" style="font-weight:700">经期模式：</span>${periodAdj.msg}。建议所有动作降低重量20%，避免核心压迫动作（如卷腹、臀推、深蹲类）。
+        </div>
+      </div>
+    </div>` : ''}
     <div class="section-title">① 热身（${wDone}/${aw.warmups.length}）</div>
     ${aw.warmups.map((w,i)=>warmupRow(w,i)).join('')}
     <div class="section-title">② 正式训练</div>
@@ -2091,24 +2558,193 @@ function showExerciseDemo(name,muscle){
   document.getElementById('modalBg').classList.add('active');
 }
 
-function getOvereatAdvice(surplus, nut){
+/* ============ 智能饮食建议（吃多了 / 吃少了）============ */
+
+function getOvereatAdvice(surplus, nut) {
+  const s = DB.settings;
+  const hasWorkout = DB.workouts.some(w => w.date === today() && w.type !== 'rest');
   const tips = [];
-  if(surplus > 200) tips.push('建议今日增加30分钟快走/慢跑（约消耗200-250千卡）');
-  if(surplus > 400) tips.push('或追加1组HIIT（15分钟）帮助消耗');
-  if(surplus > 600) tips.push('严重超标：建议取消加餐，晚餐主食减半');
-  if(nut.protein < DB.settings.proteinGoal * 0.5) tips.push('蛋白质严重不足，晚餐优先补充鸡胸肉/鱼/蛋');
-  if(nut.carb > DB.settings.carbsGoal) tips.push('碳水已超标，停止摄入主食、甜食和含糖饮料');
-  if(nut.fat > DB.settings.fatGoal) tips.push('脂肪超标，避免油炸、坚果和肥肉');
-  return tips.join('；') || '适当增加有氧运动帮助消耗';
+
+  let level = 'mild';
+  if (surplus > 500) level = 'severe';
+  else if (surplus > 200) level = 'moderate';
+
+  if (level === 'severe') {
+    tips.push(`🔴 <strong>严重超标 ${Math.round(surplus)} 千卡</strong> — 必须双管齐下`);
+  } else if (level === 'moderate') {
+    tips.push(`🟠 <strong>中度超标 ${Math.round(surplus)} 千卡</strong> — 建议干预`);
+  } else {
+    tips.push(`🟡 <strong>轻度超标 ${Math.round(surplus)} 千卡</strong> — 小幅调整即可`);
+  }
+
+  tips.push(`<div style="margin-top:10px"></div>🍽️ <strong>饮食调整</strong>`);
+  if (level === 'mild') {
+    tips.push(`• 取消今晚零食、含糖饮料和酒精，可减少约150~200kcal`);
+  } else if (level === 'moderate') {
+    tips.push(`• 晚餐主食减半（少吃约半碗米饭），取消零食/甜食`);
+    tips.push(`• 晚餐只吃蛋白质+蔬菜，避免油炸、肥肉、坚果`);
+  } else {
+    tips.push(`• 晚餐完全停止主食，只吃鸡胸肉/鱼虾+大量蔬菜`);
+    tips.push(`• 停止所有零食、水果、酒精、含糖饮料、坚果、花生酱`);
+    tips.push(`• 烹饪改为水煮/清蒸，不再额外放油`);
+  }
+
+  if (nut.carb > s.carbsGoal) {
+    tips.push(`• <span style="color:var(--accent)">碳水已超标 ${Math.round(nut.carb - s.carbsGoal)}g</span>：停止米饭/面条/面包/水果`);
+  }
+  if (nut.fat > s.fatGoal) {
+    tips.push(`• <span style="color:var(--accent)">脂肪已超标 ${Math.round(nut.fat - s.fatGoal)}g</span>：避免油炸/坚果/肥肉/花生酱`);
+  }
+  if (nut.protein > s.proteinGoal) {
+    tips.push(`• <span style="color:var(--accent)">蛋白质已超标 ${Math.round(nut.protein - s.proteinGoal)}g</span>：晚餐不再吃肉蛋奶`);
+  }
+
+  tips.push(`<div style="margin-top:10px"></div>🏃 <strong>运动补偿</strong>`);
+  if (hasWorkout) {
+    tips.push(`• 💡 今天已训练，<span style="color:var(--accent);font-weight:700">不建议再加练</span>，优先通过饮食控制`);
+    if (level !== 'mild') {
+      tips.push(`• 如必须消耗，饭后散步即可，不要进行高强度运动`);
+    }
+  } else {
+    const walkMin = Math.ceil(surplus / 5);
+    const jogMin = Math.ceil(surplus / 10);
+    const hiitMin = Math.ceil(surplus / 12);
+    const swimMin = Math.ceil(surplus / 12.5);
+
+    if (level === 'mild') {
+      tips.push(`• 快走 ${walkMin} 分钟 或 慢跑 ${jogMin} 分钟即可抵消`);
+    } else if (level === 'moderate') {
+      tips.push(`• 三选一：慢跑 ${jogMin} 分钟 / 游泳 ${swimMin} 分钟 / HIIT ${hiitMin} 分钟`);
+      tips.push(`• 或选择快走 ${walkMin} 分钟（强度低但耗时较长）`);
+    } else {
+      tips.push(`• 必须运动：慢跑 ${jogMin} 分钟 / 游泳 ${swimMin} 分钟 / HIIT ${hiitMin} 分钟`);
+      tips.push(`• 也可快走 ${walkMin} 分钟，建议分两次完成`);
+      tips.push(`• <span style="color:var(--accent)">重度超标建议饮食+运动同时进行</span>`);
+    }
+  }
+
+  if (hasWorkout && level !== 'mild') {
+    tips.push(`<div style="margin-top:10px"></div>💡 <strong>训练日联动</strong>`);
+    tips.push(`• 肌肉恢复优先，加练可能影响恢复效果`);
+    tips.push(`• 今晚保证睡眠 ${s.sleepGoal}h，比加练更重要`);
+  }
+
+  // 长期目标联动
+  const ltg = getLongTermGoal();
+  if(ltg && ltg.enabled){
+    const remaining = getRemainingDays(ltg.targetDate);
+    const dailyD = getDailyDeficit(ltg.startWeight, ltg.targetWeight, remaining, ltg.goalType) || 1;
+    const delayDays = Math.max(1, Math.ceil(surplus / dailyD));
+    tips.push(`<div style="margin-top:10px"></div>🎯 <strong>长期目标联动</strong>`);
+    tips.push(`• 距离目标还有 ${remaining} 天，今日超标会延迟进度约 ${delayDays} 天`);
+    const trainCount = DB.workouts.filter(w => w.date >= addDays(today(), -7) && w.type !== 'rest').length;
+    if(trainCount < 3){
+      tips.push(`• 本周仅训练 ${trainCount} 次，建议保持 3-4 次频率以达成目标`);
+    }
+  }
+
+  return tips.join('<br>');
 }
 
-function getMealAdvice(remaining, nut, s){
+function getMealAdvice(remaining, nut, s) {
   const tips = [];
-  if(nut.protein < s.proteinGoal * 0.8) tips.push(`优先补充蛋白质（还差 ${Math.round(s.proteinGoal - nut.protein)}g）`);
-  if(nut.carb < s.carbsGoal * 0.8) tips.push(`可补充优质碳水（还差 ${Math.round(s.carbsGoal - nut.carb)}g）`);
-  if(nut.fat < s.fatGoal * 0.8) tips.push(`可适当增加健康脂肪（坚果/橄榄油）`);
-  if(tips.length === 0) tips.push('营养素摄入均衡，继续保持');
-  return tips.join('；');
+  const absRemaining = Math.abs(remaining);
+  const hasWorkout = DB.workouts.some(w => w.date === today() && w.type !== 'rest');
+  const bmrVal = bmr(s);
+  const intake = nut.cal;
+
+  let level = 'mild';
+  if (absRemaining > 500) level = 'severe';
+  else if (absRemaining > 200) level = 'moderate';
+
+  if (level === 'severe') {
+    tips.push(`🟢 <strong>热量缺口较大，还剩 ${Math.round(remaining)} 千卡</strong>`);
+    tips.push(`⚠️ 长期吃太少会降低代谢，建议今天务必吃够`);
+  } else if (level === 'moderate') {
+    tips.push(`🟢 <strong>还有 ${Math.round(remaining)} 千卡额度</strong>`);
+  } else {
+    tips.push(`🟢 <strong>基本达标，只差 ${Math.round(remaining)} 千卡</strong>`);
+  }
+
+  tips.push(`<div style="margin-top:10px"></div>🍽️ <strong>补充建议</strong>`);
+
+  const proNeed = Math.max(0, s.proteinGoal - nut.protein);
+  const carbNeed = Math.max(0, s.carbsGoal - nut.carb);
+  const fatNeed = Math.max(0, s.fatGoal - nut.fat);
+
+  if (proNeed > 10) {
+    const items = [];
+    if (proNeed >= 20) items.push(`鸡胸肉100g (+31g蛋白/+165kcal)`);
+    if (proNeed >= 12) items.push(`鸡蛋2个 (+13g蛋白/+144kcal)`);
+    if (proNeed >= 15) items.push(`希腊酸奶150g (+17g蛋白/+88kcal)`);
+    items.push(`蛋白粉1勺 (+24g蛋白/+120kcal)`);
+    tips.push(`• 缺蛋白质 ${Math.round(proNeed)}g：${items.slice(0, 2).join(' 或 ')}`);
+  }
+
+  if (carbNeed > 20) {
+    const items = [];
+    items.push(`燕麦50g (+30g碳水/+169kcal)`);
+    items.push(`红薯150g (+30g碳水/+129kcal)`);
+    if (hasWorkout) items.push(`香蕉1根 (+27g碳水/+100kcal)`);
+    tips.push(`• 缺碳水 ${Math.round(carbNeed)}g：${items.slice(0, 2).join(' 或 ')}`);
+  }
+
+  if (fatNeed > 10) {
+    tips.push(`• 缺脂肪 ${Math.round(fatNeed)}g：坚果15g(+90kcal) 或 半个牛油果(+128kcal)`);
+  }
+
+  if (proNeed <= 10 && carbNeed <= 20 && fatNeed <= 10 && remaining > 50) {
+    tips.push(`• 营养素都达标了！剩余额度可以吃一个苹果或一小把蓝莓`);
+  }
+
+  if (hasWorkout && level !== 'mild') {
+    tips.push(`<div style="margin-top:10px"></div>⚡ <strong>训练日联动</strong>`);
+    tips.push(`• 今天练过且缺口大，建议练后30分钟内补充：`);
+    tips.push(`• 方案A：香蕉1根 + 蛋白粉1勺（快碳+蛋白，快速恢复）`);
+    tips.push(`• 方案B：全麦面包2片 + 鸡蛋2个（碳水+蛋白）`);
+    tips.push(`• 方案C：牛奶250ml + 燕麦50g（方便消化）`);
+  }
+
+  if (!hasWorkout && level === 'severe') {
+    tips.push(`<div style="margin-top:10px"></div>💡 <strong>休息日建议</strong>`);
+    const minSafe = Math.round(bmrVal * 0.8);
+    if (intake < minSafe) {
+      tips.push(`• ⚠️ 当前摄入 ${intake}kcal 已低于基础代谢80%（${minSafe}kcal）`);
+      tips.push(`• 长期过低会掉肌肉、降代谢，建议至少吃够 ${minSafe}kcal`);
+    } else {
+      tips.push(`• 休息日不用刻意少吃，保持均衡即可`);
+    }
+  }
+
+  if (level === 'severe') {
+    tips.push(`<div style="margin-top:10px"></div>📋 <strong>推荐加餐组合（约500kcal）：</strong>`);
+    tips.push(`• 方案A：鸡胸肉100g + 白米饭100g + 蔬菜`);
+    tips.push(`• 方案B：全麦面包2片 + 花生酱1勺 + 鸡蛋1个`);
+    tips.push(`• 方案C：蛋白粉1勺 + 香蕉1根 + 坚果20g`);
+  } else if (level === 'moderate' && (proNeed > 0 || carbNeed > 0)) {
+    tips.push(`<div style="margin-top:10px"></div>📋 <strong>快速补充（约250kcal）：</strong>`);
+    if (proNeed > carbNeed) {
+      tips.push(`• 鸡蛋2个 + 牛奶250ml`);
+    } else {
+      tips.push(`• 燕麦50g + 牛奶200ml`);
+    }
+  }
+
+  // 长期目标联动
+  const ltg = getLongTermGoal();
+  if(ltg && ltg.enabled){
+    const remainingDays = getRemainingDays(ltg.targetDate);
+    tips.push(`<div style="margin-top:10px"></div>🎯 <strong>长期目标联动</strong>`);
+    if(remaining < 0){
+      tips.push(`• 今日少吃 ${Math.round(Math.abs(remaining))} 千卡，缺口过大会掉肌肉，建议加餐补充蛋白质`);
+    }
+    const trainCount = DB.workouts.filter(w => w.date >= addDays(today(), -7) && w.type !== 'rest').length;
+    if(trainCount < 3){
+      tips.push(`• 距离目标还有 ${remainingDays} 天，本周训练 ${trainCount} 次，建议保持 3-4 次`);
+    }
+  }
+
+  return tips.join('<br>');
 }
 
 function stretchRow(s,i){
@@ -2244,6 +2880,16 @@ function finishWorkout(){
     if(idx>=0) DB.workouts[idx] = w;
     toast('训练记录已更新');
   } else {
+    // 经期替代训练：只记录，不推进AB循环（让漏练顺延机制处理）
+    if(aw.plan && aw.plan._periodModified){
+      DB.workouts.push(w);
+      saveDB();
+      activeWorkout = null;
+      if(workoutTI) clearInterval(workoutTI);
+      render();
+      toast('经期替代训练已记录，原腿部训练将自动顺延');
+      return;
+    }
     // 功能六：自定义模板训练不触发 AB 循环推进，直接保存记录返回
     if(aw.plan && aw.plan.type === 'template'){
       DB.workouts.push(w);
@@ -2550,6 +3196,22 @@ function renderLogMeal(){
   };
   
   let html = '';
+  
+  // 长期目标进度（饮食页顶部）
+  const ltg = getLongTermGoal();
+  if(ltg && ltg.enabled){
+    const progress = getCurrentGoalProgress();
+    const suggested = getSuggestedCalories();
+    const remaining = getRemainingDays(ltg.targetDate);
+    html += `<div class="card" style="margin-bottom:14px">
+      <div class="row between" style="margin-bottom:8px">
+        <span style="font-weight:700">${ltg.goalType==='loss'?'🔥 减脂':'💪 增肌'}进度</span>
+        <span class="tag ${progress&&progress.isOnTrack?'primary':'accent'}">${progress?progress.pct:0}% · 剩余${remaining}天</span>
+      </div>
+      <div class="progress" style="height:6px;margin-bottom:8px"><div style="width:${progress?progress.pct:0}%;background:${progress&&progress.isOnTrack?'var(--primary)':'var(--accent)'}"></div></div>
+      ${suggested ? `<div class="row between" style="font-size:12px"><span class="muted">建议摄入</span><span class="v primary">${suggested}kcal</span></div>` : ''}
+    </div>`;
+  }
   
   // 顶部总览：代谢+活动+摄入+目标 + 大圆环
   html += `<div class="card" style="margin-bottom:14px">
@@ -4038,6 +4700,65 @@ function renderMe(){
     <button class="btn ghost block" style="margin-top:10px" onclick="openGoalsModal()">${icon('i-target')}修改目标</button>
   </div>`;
 
+  // Long Term Goal
+  html += `<div class="section-title">长期目标</div>`;
+  const ltg = getLongTermGoal();
+  if(ltg && ltg.enabled){
+    const progress = getCurrentGoalProgress();
+    const remaining = getRemainingDays(ltg.targetDate);
+    const totalDays = Math.max(1, diffDays(ltg.targetDate, ltg.startDate));
+    const passed = totalDays - remaining;
+    const deficit = getDailyDeficit(ltg.startWeight, ltg.targetWeight, remaining, ltg.goalType);
+    const suggested = getSuggestedCalories();
+    const m30 = getMilestoneWeight(Math.min(totalDays, 30));
+    const m60 = getMilestoneWeight(Math.min(totalDays, 60));
+    
+    html += `<div class="card">
+      <div class="row between" style="margin-bottom:10px">
+        <h3 style="margin:0">${icon('i-target')}${ltg.goalType==='loss'?'减脂':'增肌'}目标</h3>
+        <span class="tag primary">${ltg.startWeight}kg → ${ltg.targetWeight}kg</span>
+      </div>
+      <div style="margin-bottom:10px">
+        <div class="progress" style="height:8px"><div style="width:${progress?progress.pct:0}%;background:${progress&&progress.isOnTrack?'var(--primary)':'var(--accent)'}"></div></div>
+        <div class="row between" style="font-size:11px;margin-top:4px">
+          <span class="muted">已进行 ${passed} 天</span>
+          <span class="${progress&&progress.isOnTrack?'primary':'accent'}">${progress?progress.pct:0}%</span>
+          <span class="muted">剩余 ${remaining} 天</span>
+        </div>
+      </div>
+      <div class="grid grid-2" style="gap:8px;font-size:12px;margin-bottom:10px">
+        <div class="kv"><span class="k">当前体重</span><span class="v">${progress?progress.currentWeight:'-'}kg</span></div>
+        <div class="kv"><span class="k">目标体重</span><span class="v">${ltg.targetWeight}kg</span></div>
+        <div class="kv"><span class="k">每日缺口/盈余</span><span class="v accent">${deficit}kcal</span></div>
+        <div class="kv"><span class="k">建议摄入</span><span class="v primary">${suggested?suggested:'-'}kcal</span></div>
+      </div>
+      <div class="section-title" style="margin:10px 0 6px">里程碑</div>
+      <div class="timeline" style="padding-left:14px">
+        <div class="tl-item" style="margin-bottom:6px"><div class="t">第30天应达</div><div class="v">${m30}kg</div></div>
+        <div class="tl-item" style="margin-bottom:6px"><div class="t">第60天应达</div><div class="v">${m60}kg</div></div>
+        <div class="tl-item"><div class="t">目标日 ${fmtDate(ltg.targetDate)}</div><div class="v primary">${ltg.targetWeight}kg</div></div>
+      </div>
+      ${suggested && Math.abs(suggested - s.caloriesGoal) > 50 ? `
+        <div class="row" style="gap:8px;margin-top:12px">
+          <button class="btn primary block" onclick="applySuggestedGoals()">${icon('i-check')}一键应用建议热量 (${suggested}kcal)</button>
+        </div>
+      ` : ''}
+      <button class="btn ghost block" style="margin-top:8px" onclick="openLongTermGoalModal()">${icon('i-edit')}修改目标</button>
+    </div>`;
+  }else{
+    html += `<div class="card">
+      <div class="empty" style="padding:20px">
+        ${icon('i-target')}
+        <p>设定一个长期目标，系统会帮你规划每日热量和里程碑</p>
+        <button class="btn primary sm" style="margin-top:10px" onclick="openLongTermGoalModal()">${icon('i-plus')}设定3个月目标</button>
+      </div>
+    </div>`;
+  }
+
+  // 体重趋势分析
+  html += `<div class="section-title">体重趋势分析</div>`;
+  html += renderWeightTrendCard() || `<div class="card"><div class="empty">${icon('i-target')}<p>至少需要 2 天体重数据才能分析趋势</p></div></div>`;
+
   // AB Cycle
   html += `<div class="section-title">训练计划</div>`;
   html += `<div class="card">
@@ -4065,9 +4786,15 @@ function renderMe(){
 
   // Data management
   html += `<div class="section-title">数据管理</div>`;
+  const lbTime = DB.settings.lastBackup;
+  const lbDays = lbTime ? diffDays(today(), lbTime) : -1;
   html += `<div class="card">
+    <div class="row between" style="padding:8px 0;margin-bottom:8px;border-bottom:1px solid var(--border-soft)">
+      <div class="row" style="gap:8px">${icon('i-download')}<span class="dim">上次备份</span></div>
+      <span class="${lbDays<0||lbDays>7?'accent':'primary'}" style="font-weight:700;font-size:12px">${lbTime?fmtDate(lbTime)+' ('+lbDays+'天前)':'从未备份'}</span>
+    </div>
     <div class="grid grid-2" style="gap:8px">
-      <button class="btn primary" onclick="exportJSON()">${icon('i-download')}导出JSON</button>
+      <button class="btn primary" onclick="exportJSON()">${icon('i-download')}立即备份</button>
       <button class="btn ghost" onclick="document.getElementById('importFile').click()">${icon('i-upload')}导入JSON</button>
       <button class="btn ghost" onclick="exportCSV()">${icon('i-download')}导出CSV</button>
       <button class="btn ghost" onclick="openDeleteModal()">${icon('i-trash')}按时间删除</button>
@@ -4142,6 +4869,8 @@ function showPlanDetail(){
 
 function applyTheme(){
   document.body.setAttribute('data-theme', DB.settings.theme||'dark');
+  const m = document.querySelector('meta[name="theme-color"]');
+  if(m) m.setAttribute('content', (DB.settings.theme==='light')?'#f5f5f5':'#0f0f0f');
 }
 
 function toggleTheme(){
@@ -4283,7 +5012,9 @@ function exportJSON(){
     a.download = `fj-${today()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast('已导出 JSON');
+    DB.settings.lastBackup = today();
+    saveDB();
+    toast('已导出 JSON，备份时间已记录');
   }catch(e){ toast('导出失败：'+e.message); }
 }
 
