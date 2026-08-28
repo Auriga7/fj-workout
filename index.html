@@ -185,6 +185,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .cal .day .dot{width:4px;height:4px;border-radius:50%;background:var(--primary)}
 .cal .day .dot.accent{background:var(--accent)}
 .cal .day.empty{background:transparent;cursor:default}
+/* 有氧日日历样式 */
+.cal .day.cardio{background:rgba(77,171,255,.15);color:var(--info);border-color:var(--info)}
+.cal .day.cardio:hover{border-color:var(--info)}
 
 /* Habit chip grid fix */
 .habit-grid{align-items:start}
@@ -196,7 +199,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .ex-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
 .ex-name{font-weight:700;font-size:14px;flex:1}
 .ex-name small{display:block;font-size:11px;color:var(--fg-mute);font-weight:500;margin-top:1px}
-.set-row{display:grid;grid-template-columns:24px 1fr 1fr 50px 36px 30px;gap:6px;align-items:center;margin-bottom:6px}
+.set-row{display:grid;grid-template-columns:24px 1fr 1fr 44px 64px 36px 30px;gap:6px;align-items:center;margin-bottom:6px}
 .set-row .set-no{font-size:11px;color:var(--fg-mute);font-weight:700;text-align:center}
 .set-row input{padding:6px 8px;font-size:12px}
 .set-row .icon-btn{width:28px;height:28px}
@@ -289,7 +292,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   .content{padding:14px 12px calc(88px + env(safe-area-inset-bottom,0px))}
   .header h1{font-size:20px}
   .grid-3,.grid-4{grid-template-columns:1fr 1fr}
-  .set-row{grid-template-columns:18px 1fr 1fr 44px 28px 26px;font-size:11px}
+  .set-row{grid-template-columns:18px 1fr 1fr 40px 56px 28px 26px;font-size:11px}
   .habit-grid{grid-template-columns:1fr 1fr}
   /* 小屏 row.between 文本溢出保护 */
   .row.between{gap:6px}
@@ -301,7 +304,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   .ex-head{flex-wrap:wrap;gap:6px}
   .ex-name{flex:1 1 100%;min-width:0}
   /* 长 tag 在小屏允许换行 */
-  .tag{white-space:nowrap}
+  .tag{white-space:normal}
 }
 @media (max-width:480px){
   /* 超小屏：grid-2 也降级为 1 列以避免内容挤压 */
@@ -519,8 +522,49 @@ function letterAvatarFallback(nickname){
   return `<div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:800;color:#000">${ch}</div>`;
 }
 
-const WARMUPS = ['平地慢走5分钟','肩环绕10次','胸椎转体10次','弹力带肩外旋15次','髋环绕10次','膝盖屈伸10次','踝环绕每侧10次'];
-const STRETCHES = ['胸门框拉伸','背阔肌拉伸','上背拉伸','三角肌前束拉伸','三角肌中束拉伸','三角肌后束拉伸','肱二头肌拉伸','肱三头肌拉伸','股四头肌轻柔拉伸','腘绳肌拉伸','臀肌拉伸','小腿拉伸'];
+// 按训练日分类的热身计划（顺序、必做/可选均按第一个文件设定）
+const WARMUPS_PUSH = ['慢走 3-5min','泡沫轴背、胸','肩关节环绕','动态侧支撑转体','弹力带肩外旋','轻重量推胸激活','手腕环绕（可选）','髋/膝/踝活动（可选）'];
+const WARMUPS_PULL = ['慢走 3-5min','泡沫轴背、臀','肩关节环绕','肩胛骨回缩夹紧','动态侧支撑转体','弹力带肩内旋','轻重量下拉激活','直臂下压激活（可选）','髋/膝/踝活动（可选）'];
+const WARMUPS_LEGS = ['慢走 3-5min','泡沫轴大腿前/外侧、臀、小腿','髋关节环绕','膝屈伸活动','踝关节环绕','自重臀桥激活','自重深蹲模式激活'];
+const WARMUPS_MIXED = ['慢走 3-5min','泡沫轴背/胸/臀/大腿前侧（可选）','肩关节环绕','动态侧支撑转体','弹力带肩外旋','髋/膝/踝全套活动（可选）'];
+const WARMUPS_TEMPLATE = ['全身泡沫轴松解','全套关节动态','肩袖内外旋','对应动作预激活'];
+
+const STRETCHES_PUSH = ['胸门框','肩前束','肩中束','肱三头肌','上背'];
+const STRETCHES_PULL = ['背阔肌','上背','肩后束','肱二头肌','胸门框（拮抗）'];
+const STRETCHES_LEGS = ['股四头肌轻柔','腘绳肌','臀肌','小腿','下背拉伸'];
+const STRETCHES_MIXED = ['胸门框','背阔肌','上背','肩前/中/后束','肱二头肌','肱三头肌'];
+const STRETCHES_TEMPLATE = ['胸门框','背阔肌','上背','肩前束','肩中束','肩后束','肱二头肌','肱三头肌','股四头肌轻柔','腘绳肌','臀肌','小腿'];
+
+function getWarmupsByType(type){
+  if(!type) return WARMUPS_TEMPLATE;
+  if(type.includes('push')) return WARMUPS_PUSH;
+  if(type.includes('pull')) return WARMUPS_PULL;
+  if(type.includes('legs')) return WARMUPS_LEGS;
+  if(type.includes('arms')) return WARMUPS_PUSH;
+  if(type.includes('mixed')) return WARMUPS_MIXED;
+  if(type.includes('cardio')) return [
+    '慢走 3-5min','动态髋关节环绕','肩关节环绕','猫牛式脊柱激活',
+    '自重深蹲×10','开合跳×20（可选）','目标肌群预激活'
+  ];
+  return WARMUPS_TEMPLATE;
+}
+function getStretchesByType(type){
+  if(!type) return STRETCHES_TEMPLATE;
+  if(type.includes('push')) return STRETCHES_PUSH;
+  if(type.includes('pull')) return STRETCHES_PULL;
+  if(type.includes('legs')) return STRETCHES_LEGS;
+  if(type.includes('arms')) return STRETCHES_MIXED;
+  if(type.includes('mixed')) return STRETCHES_MIXED;
+  if(type.includes('cardio')) return [
+    '髋屈肌拉伸','小腿拉伸','股四头肌','胸门框',
+    '背阔肌','上背','肩后束','婴儿式放松'
+  ];
+  return STRETCHES_TEMPLATE;
+}
+
+// 保留旧变量名作为模板/通用回退，避免其他边缘引用报错
+const WARMUPS = WARMUPS_TEMPLATE;
+const STRETCHES = STRETCHES_TEMPLATE;
 const REST_TYPES = [
   {key:'rest', name:'完全休息', icon:'i-bed', desc:'让身体充分恢复'},
   {key:'swim', name:'自由泳', icon:'i-swim', desc:'30分钟低强度有氧'},
@@ -528,16 +572,22 @@ const REST_TYPES = [
   {key:'recovery', name:'低负荷恢复', icon:'i-bolt', desc:'轻重量全身循环'}
 ];
 const PLAN_A = [
-  {day:1,name:'上肢推',type:'pushA'},
-  {day:3,name:'上肢拉',type:'pullA'},
-  {day:5,name:'护膝臀腿',type:'legsA'},
-  {day:0,name:'上肢混合',type:'mixedA'}
+  {day:1, name:'上肢推 A',   type:'pushA',   category:'strength'},
+  {day:2, name:'有氧日 A',   type:'cardioA', category:'cardio'},
+  {day:3, name:'上肢拉 A',   type:'pullA',   category:'strength'},
+  {day:4, name:'完全休息',   type:'rest',    category:'rest'},
+  {day:5, name:'护膝臀腿 A', type:'legsA',   category:'strength'},
+  {day:6, name:'有氧日 B',   type:'cardioB', category:'cardio'},
+  {day:0, name:'手臂专项 A', type:'armsA',   category:'strength'}
 ];
 const PLAN_B = [
-  {day:1,name:'上肢推B',type:'pushB'},
-  {day:3,name:'上肢拉B',type:'pullB'},
-  {day:5,name:'护膝臀腿B',type:'legsB'},
-  {day:0,name:'上肢混合B',type:'mixedB'}
+  {day:1, name:'上肢推 B',   type:'pushB',   category:'strength'},
+  {day:2, name:'有氧日 A',   type:'cardioA', category:'cardio'},
+  {day:3, name:'上肢拉 B',   type:'pullB',   category:'strength'},
+  {day:4, name:'完全休息',   type:'rest',    category:'rest'},
+  {day:5, name:'护膝臀腿 B', type:'legsB',   category:'strength'},
+  {day:6, name:'有氧日 B',   type:'cardioB', category:'cardio'},
+  {day:0, name:'手臂专项 B', type:'armsB',   category:'strength'}
 ];
 const EXERCISES = {
   pushA:[
@@ -550,30 +600,26 @@ const EXERCISES = {
   ],
   pullA:[
     {n:'宽握高位下拉',m:'背',sup:0,demoType:'pulldown'},
-    {n:'坐姿划船机',m:'背',sup:0,demoType:'row'},
+    {n:'坐姿绳索划船',m:'背',sup:0,demoType:'row'},
     {n:'绳索面拉',m:'肩',sup:0,demoType:'facePull'},
-    {n:'坐姿器械弯举',m:'手臂',sup:1,demoType:'curl'},
+    {n:'器械弯举',m:'手臂',sup:1,demoType:'curl'},
     {n:'锤式弯举',m:'手臂',sup:1,demoType:'curl'},
     {n:'绳索卷腹',m:'核心',sup:0,demoType:'crunch'}
   ],
   legsA:[
-    {n:'直腿抬高',m:'腿',sup:0,demoType:'legExtension'},
-    {n:'坐姿伸膝',m:'腿',sup:0,demoType:'legExtension'},
+    {n:'坐姿腿屈伸',m:'腿',sup:0,demoType:'legExtension'},
+    {n:'坐姿腿弯举',m:'腿',sup:0,demoType:'legCurl'},
     {n:'坐姿髋外展',m:'腿',sup:0,demoType:'hipThrust'},
     {n:'靠背臀推',m:'腿',sup:0,demoType:'hipThrust'},
-    {n:'坐姿腿弯举',m:'腿',sup:0,demoType:'legCurl'},
     {n:'坐姿提踵',m:'腿',sup:0,demoType:'calfRaise'},
     {n:'坐姿收腹器械',m:'核心',sup:0,demoType:'crunch'}
   ],
-  mixedA:[
-    {n:'坐姿推胸',m:'胸',sup:0,demoType:'push'},
-    {n:'宽握高位下拉',m:'背',sup:0,demoType:'pulldown'},
-    {n:'坐姿划船',m:'背',sup:0,demoType:'row'},
-    {n:'器械侧平举',m:'肩',sup:0,demoType:'sideRaise'},
-    {n:'绳索面拉',m:'肩',sup:0,demoType:'facePull'},
-    {n:'绳索三头下压',m:'手臂',sup:1,demoType:'pushdown'},
-    {n:'坐姿弯举',m:'手臂',sup:1,demoType:'curl'},
-    {n:'绳索卷腹',m:'核心',sup:0,demoType:'crunch'}
+  armsA:[
+    {n:'绳索三头下压',m:'手臂',sup:0,demoType:'pushdown'},
+    {n:'颈后绳索臂屈伸',m:'手臂',sup:0,demoType:'pushdown'},
+    {n:'器械弯举',m:'手臂',sup:1,demoType:'curl'},
+    {n:'锤式弯举',m:'手臂',sup:1,demoType:'curl'},
+    {n:'绳索面拉',m:'肩',sup:0,demoType:'facePull'}
   ],
   pushB:[
     {n:'平板轨迹推胸',m:'胸',sup:0,demoType:'push'},
@@ -589,26 +635,54 @@ const EXERCISES = {
     {n:'弹力带面拉',m:'肩',sup:0,demoType:'facePull'},
     {n:'哑铃集中弯举',m:'手臂',sup:1,demoType:'curl'},
     {n:'绳索锤式弯举',m:'手臂',sup:1,demoType:'curl'},
-    {n:'坐姿收腹',m:'核心',sup:0,demoType:'crunch'}
+    {n:'坐姿收腹器械',m:'核心',sup:0,demoType:'crunch'}
   ],
   legsB:[
-    {n:'器械直腿抬高',m:'腿',sup:0,demoType:'legExtension'},
-    {n:'45°坐姿伸膝',m:'腿',sup:0,demoType:'legExtension'},
+    {n:'45°坐姿腿屈伸',m:'腿',sup:0,demoType:'legExtension'},
+    {n:'俯卧腿弯举',m:'腿',sup:0,demoType:'legCurl'},
     {n:'站姿髋外展',m:'腿',sup:0,demoType:'hipThrust'},
     {n:'斜靠臀推',m:'腿',sup:0,demoType:'hipThrust'},
-    {n:'俯卧腿弯举',m:'腿',sup:0,demoType:'legCurl'},
     {n:'站姿提踵',m:'腿',sup:0,demoType:'calfRaise'},
     {n:'绳索卷腹',m:'核心',sup:0,demoType:'crunch'}
   ],
+  armsB:[
+    {n:'绳索V杆下压',m:'手臂',sup:0,demoType:'pushdown'},
+    {n:'哑铃颈后臂屈伸',m:'手臂',sup:0,demoType:'pushdown'},
+    {n:'哑铃集中弯举',m:'手臂',sup:1,demoType:'curl'},
+    {n:'绳索锤式弯举',m:'手臂',sup:1,demoType:'curl'},
+    {n:'弹力带面拉',m:'肩',sup:0,demoType:'facePull'}
+  ],
+  /* ---- 新增：有氧日动作库 ---- */
+  cardioA:[
+    {n:'自由泳',       m:'有氧', sup:0, demoType:'swim'},
+    {n:'椭圆机',       m:'有氧', sup:0, demoType:'walk'},
+    {n:'坐姿骑行',     m:'有氧', sup:0, demoType:'walk'},
+    {n:'平板支撑',     m:'核心', sup:0, demoType:'crunch'},
+    {n:'死虫式',       m:'核心', sup:0, demoType:'crunch'}
+  ],
+  cardioB:[
+    {n:'自由泳',       m:'有氧', sup:0, demoType:'swim'},
+    {n:'划船机',       m:'有氧', sup:0, demoType:'row'},
+    {n:'战绳（轻量）', m:'有氧', sup:0, demoType:'walk'},
+    {n:'农夫行走',     m:'有氧', sup:0, demoType:'walk'},
+    {n:'鸟狗式',       m:'核心', sup:0, demoType:'crunch'}
+  ],
+  /* ---- 经期上肢替代动作库 ---- */
+  mixedA:[
+    {n:'坐姿推胸机',m:'胸',sup:0,demoType:'push'},
+    {n:'坐姿器械肩推',m:'肩',sup:0,demoType:'push'},
+    {n:'宽握高位下拉',m:'背',sup:0,demoType:'pulldown'},
+    {n:'绳索面拉',m:'肩',sup:0,demoType:'facePull'},
+    {n:'器械弯举',m:'手臂',sup:1,demoType:'curl'},
+    {n:'锤式弯举',m:'手臂',sup:1,demoType:'curl'}
+  ],
   mixedB:[
-    {n:'绳索推胸',m:'胸',sup:0,demoType:'push'},
-    {n:'反手窄握高位下拉',m:'背',sup:0,demoType:'pulldown'},
-    {n:'单臂坐姿划船',m:'背',sup:0,demoType:'row'},
-    {n:'哑铃侧平举',m:'肩',sup:0,demoType:'sideRaise'},
-    {n:'哑铃面拉',m:'肩',sup:0,demoType:'facePull'},
-    {n:'绳索三头下压',m:'手臂',sup:1,demoType:'pushdown'},
-    {n:'哑铃锤式弯举',m:'手臂',sup:1,demoType:'curl'},
-    {n:'坐姿收腹',m:'核心',sup:0,demoType:'crunch'}
+    {n:'平板轨迹推胸',m:'胸',sup:0,demoType:'push'},
+    {n:'哑铃坐姿肩推',m:'肩',sup:0,demoType:'push'},
+    {n:'窄握高位下拉',m:'背',sup:0,demoType:'pulldown'},
+    {n:'弹力带面拉',m:'肩',sup:0,demoType:'facePull'},
+    {n:'哑铃集中弯举',m:'手臂',sup:1,demoType:'curl'},
+    {n:'绳索锤式弯举',m:'手臂',sup:1,demoType:'curl'}
   ]
 };
 
@@ -668,8 +742,19 @@ const DEFAULT_EXERCISE_LIBRARY = [
   {id:'ex501',name:'坐姿收腹器械',muscle:'核心',demoType:'crunch',steps:['调整座椅，使转轴对准腹部','双手抱胸或扶把手','呼气收缩腹部，上半身向前卷曲','吸气缓慢回放，不要完全放松'],errors:['用脖子发力，颈椎前伸','借助手臂拉力，腹部没有发力']},
   {id:'ex502',name:'绳索卷腹',muscle:'核心',demoType:'crunch',steps:['跪姿，绳索置于头顶前方','呼气收缩腹部，上半身向下卷曲','下巴微收，不要用手拉绳索','吸气缓慢回放'],errors:['用手拉绳索，腹部不发力','臀部坐回脚跟，失去卷腹幅度']},
   {id:'ex503',name:'坐姿收腹',muscle:'核心',demoType:'crunch',steps:['坐姿，身体微后仰','双腿抬起同时上体前倾收腹','顶峰挤压','缓慢展开'],errors:['用双手拽拉身体借力','脖子使劲前伸']},
-];
 
+  // 背（新增）
+  {id:'ex108',name:'坐姿绳索划船',muscle:'背',demoType:'row',steps:['双脚踩实，膝盖微屈，挺胸','呼气向后拉手柄至腹部，肩胛骨后缩','顶峰收缩1秒','吸气缓慢回放，保持背部张力'],errors:['腰部反弓，腰椎压力过大','耸肩完成，斜方肌代偿']},
+  
+  // 腿（新增/别名）
+  {id:'ex413',name:'坐姿腿屈伸',muscle:'腿',demoType:'legExtension',steps:['调整器械，使转轴对准膝盖','背部贴紧靠背','呼气伸直小腿，顶峰收缩股四头肌','吸气缓慢下放'],errors:['臀部离开座椅，借力完成','下放过快，失去离心控制']},
+  {id:'ex414',name:'45°坐姿腿屈伸',muscle:'腿',demoType:'legExtension',steps:['调整座椅至45度','背部贴紧靠背','呼气伸直小腿','缓慢下放'],errors:['臀部离开座椅','下放过快']},
+  
+  // 手臂（新增）
+  {id:'ex309',name:'绳索V杆下压',muscle:'手臂',demoType:'pushdown',steps:['大臂夹紧身体两侧，不要移动','双手握住V杆，呼气向下推直前臂','顶峰收缩1秒','吸气缓慢回放，保持大臂固定'],errors:['大臂前后摆动，借力完成','身体前倾过多，腰部代偿']},
+  {id:'ex310',name:'哑铃颈后臂屈伸',muscle:'手臂',demoType:'pushdown',steps:['双手托住哑铃一端，置于颈后','大臂贴近耳朵，保持固定','呼气伸直手臂，感受三头收缩','吸气缓慢下放'],errors:['手肘外展过多','腰部反弓']},
+  {id:'ex311',name:'器械弯举',muscle:'手臂',demoType:'curl',steps:['大臂贴紧靠垫，不要移动','呼气向上弯举前臂','顶峰收缩1秒','吸气缓慢下放，不要完全伸直'],errors:['大臂离开靠垫，前后摆动','借助身体晃动借力']},
+];
 const FOODS_PRESET = [
   // 肉类/蛋白
   {n:'鸡胸肉100g',c:165,p:31,cb:0,f:3.6},
@@ -749,15 +834,16 @@ function defaultData(){
       avatar:'',
       goal:'增肌减脂',bmr:1650,unit:'metric',theme:'dark',
       caloriesGoal:2200,proteinGoal:140,carbsGoal:220,fatGoal:70,
-      waterGoal:2500,sleepGoal:7.5,restBetweenSets:90,trainingGoal:'4次/周',
+      waterGoal:2500,sleepGoal:7.5,restBetweenSets:90,trainingGoal:'4次/周',stepsGoal:8000,
       longTermGoal:{enabled:false,targetWeight:0,targetDate:'',goalType:'loss',startWeight:0,startDate:''},
-      lastBackup:''
+      lastBackup:'',lastDeloadDate:''
     },
     workouts:[],
     body:[],
     prs:{},
     prs1RM:{}, // 功能二：各动作估算 1RM (Epley)
     cardio:[], // 功能五：有氧训练记录
+    steps:[],   // 功能四：日常步数（NEAT）
     templates:[], // 功能六：自定义训练模板 {id, name, exercises:[{name,muscle,setsCount,repsPreset,weightPreset,supersetId}]}
     plans:(()=>{
       const t=today(); const w=dow(t);
@@ -784,14 +870,18 @@ function loadDB(){
     DB.settings = Object.assign({},def.settings,DB.settings||{});
     DB.settings.longTermGoal = Object.assign({},def.settings.longTermGoal,DB.settings.longTermGoal||{});
     DB.settings.lastBackup = DB.settings.lastBackup || '';
+    DB.settings.lastDeloadDate = DB.settings.lastDeloadDate || '';
+    DB.settings.stepsGoal = DB.settings.stepsGoal || 8000;
     DB.plans = DB.plans || def.plans;
     // Backfill lastScheduledDate for legacy plan entries (carryover support)
     const t=today(); const w=dow(t);
     ['A','B'].forEach(c=>{
       if(!DB.plans[c]) DB.plans[c]=def.plans[c];
-      DB.plans[c] = DB.plans[c].map((p,i)=>{
-        const dp = def.plans[c][i]||p;
+      // 向后兼容：旧版 4 项计划升级为 7 项（补全 category + 新增有氧/休息日）
+      DB.plans[c] = def.plans[c].map(dp=>{
+        const p = (DB.plans[c]||[]).find(x=>x.day===dp.day) || dp;
         return {...dp, ...p,
+          category: p.category || dp.category,
           lastScheduledDate: p.lastScheduledDate || addDays(t,-((w-(p.day??dp.day)+7)%7)),
           completed: !!p.completed };
       });
@@ -799,7 +889,7 @@ function loadDB(){
     if(!DB.plans.currentCycle) DB.plans.currentCycle = 'A';
     DB.foods = DB.foods && DB.foods.length ? DB.foods : def.foods;
     DB.exerciseLibrary = DB.exerciseLibrary && DB.exerciseLibrary.length ? DB.exerciseLibrary : def.exerciseLibrary;
-    ['workouts','body','prs','meals','water','habits','period'].forEach(k=>{ if(!DB[k]) DB[k]=def[k] });
+    ['workouts','body','prs','meals','water','habits','period','steps'].forEach(k=>{ if(!DB[k]) DB[k]=def[k] });
     // 功能二/五：向后兼容顶层字段
     DB.prs1RM = DB.prs1RM || {};
     DB.cardio = DB.cardio || [];
@@ -838,16 +928,14 @@ function seedSample(){
   for(let i=20;i>=0;i--){
     DB.body.push({date:addDays(t,-i),weight:(68+Math.sin(i/3)*0.8).toFixed(1),bodyFat:(15+Math.cos(i/4)*1.5).toFixed(1),waist:78,hip:94,thigh:54,arm:33});
   }
-  // Workouts last 14 days
+  // Workouts last 14 days（力量 + 有氧日；完全休息日不生成记录）
   for(let i=13;i>=0;i--){
     const d = addDays(t,-i);
     const wd = dow(d);
-    if([1,3,5,0].includes(wd)){
-      const plan = (i%8<4)?PLAN_A:PLAN_B;
-      const p = plan.find(p=>p.day===wd);
-      if(p){
-        DB.workouts.push(makeSampleWorkout(d,p));
-      }
+    const plan = (i%8<4)?PLAN_A:PLAN_B;
+    const p = plan.find(p=>p.day===wd);
+    if(p && p.category !== 'rest'){
+      DB.workouts.push(makeSampleWorkout(d,p));
     }
   }
   // Meals today
@@ -865,21 +953,33 @@ function seedSample(){
 }
 
 function makeSampleWorkout(date,plan){
+  const isCardio = plan.category === 'cardio';
   const exs = EXERCISES[plan.type]||EXERCISES.mixed;
   const exercises = exs.slice(0,5).map((e,idx)=>{
+    let sid = null;
+    if(e.sup){
+      let gs = idx;
+      while(gs > 0 && exs[gs-1].sup) gs--;
+      sid = `ss${gs}`;
+    }
     const sets=[];
     const nsets = 4;
     for(let s=0;s<nsets;s++){
-      sets.push({weight:20+s*2.5,reps:10-s,rpe:7+s*0.5,failure:s===nsets-1,note:''});
+      if(isCardio){
+        // 有氧日：weight 存时长（分钟），reps 存距离/心率
+        sets.push({weight:10+s*5, reps:120+s*10, rpe:6+s*0.3, failure:false, note:'', tempo:''});
+      }else{
+        sets.push({weight:20+s*2.5, reps:10-s, rpe:7+s*0.5, failure:s===nsets-1, note:'', tempo:''});
+      }
     }
-    return {id:uid(),name:e.n,muscle:e.m,sets,supersetId:e.sup?`ss${idx}`:null,notes:''};
+    return {id:uid(),name:e.n,muscle:e.m,sets,supersetId:sid,notes:''};
   });
   return {
     id:uid(),date,cycle:DB.plans.currentCycle,dayName:plan.name,type:plan.type,
-    warmups:WARMUPS.map(w=>({name:w,done:true,duration:60})),
+    warmups:getWarmupsByType(plan.type).map(w=>({name:w,done:true,duration:60})),
     exercises,
-    stretches:STRETCHES.map(s=>({name:s,done:true,duration:30})),
-    duration:75,totalVolume:exercises.reduce((a,e)=>a+e.sets.reduce((b,s)=>b+s.weight*s.reps,0),0),
+    stretches:getStretchesByType(plan.type).map(s=>({name:s,done:true,duration:30})),
+    duration:isCardio?40:75,totalVolume:exercises.reduce((a,e)=>a+e.sets.reduce((b,s)=>b+s.weight*s.reps,0),0),
     bodyFeel:7,kneeStatus:'良好'
   };
 }
@@ -1075,24 +1175,57 @@ window.startTemplateWorkout = function(templateId){
   activeWorkout = {
     date: todayStr,
     plan: {name: t.name, type: 'template'}, // type=template → finishWorkout 不推进 AB 循环
-    warmups: (typeof WARMUPS !== 'undefined' ? WARMUPS : []).map(w=>({name:w,done:false,duration:0})),
+        warmups: getWarmupsByType('template').map(w=>({name:w,done:false,duration:0})),
     exercises: t.exercises.map((e,i)=>({
       id: uid(), name: e.name, muscle: e.muscle || '',
       supersetId: e.supersetId || null,
       sets: Array.from({length: (e.setsCount&&e.setsCount>0)?e.setsCount:4}, ()=>({
         weight: e.weightPreset ? e.weightPreset : '',
         reps: e.repsPreset ? e.repsPreset : '',
-        rpe: '', failure: false, note: ''
+        rpe: '', failure: false, note: '', tempo: ''
       })),
       notes: ''
     })),
-    stretches: (typeof STRETCHES !== 'undefined' ? STRETCHES : []).map(s=>({name:s,done:false,duration:0})),
-    startTime: Date.now(),
-    phase: 'warmup'
+        stretches: getStretchesByType('template').map(s=>({name:s,done:false,duration:0})),
+    startTime: Date.now(), phase: 'warmup'
   };
   renderActiveWorkout();
   toast(`已加载模板「${t.name}」，共 ${t.exercises.length} 个动作`);
 };
+
+/* ============ 减载周（Deload）系统 ============ */
+function getTrainingWeeksSince(lastDate){
+  if(!lastDate){
+    // 从未减载：以最早一次非休息训练记录为起点计算（避免新用户一进来就被判定为减载周）
+    const ws = (DB.workouts||[]).filter(w=>w.type!=='rest').map(w=>w.date).sort();
+    if(!ws.length) return 0;
+    return Math.floor(diffDays(today(), ws[0])/7);
+  }
+  return Math.floor(diffDays(today(), lastDate)/7);
+}
+function isDeloadWeek(){
+  return getTrainingWeeksSince(DB.settings.lastDeloadDate) >= 4;
+}
+function getDeloadAdjustment(){
+  if(!isDeloadWeek()) return null;
+  return {weightPct:0.65, setsDivider:2, msg:'减载周：重量降至65%，组数减半'};
+}
+
+// 查找某日期应顺延的漏练训练日（漏练的训练日代替休息日；休息日漏练不用管）
+function findCarryoverForDate(date){
+  const planArr = DB.plans[DB.plans.currentCycle] || DB.plans.A;
+  for(let back=1; back<=7; back++){
+    const d = addDays(date, -back);
+    const dw = dow(d);
+    const dp = planArr.find(p => p.day === dw);
+    if(!dp || dp.category === 'rest') continue; // 休息日漏练不用管
+    if(!DB.workouts.some(x=>x.date===d && x.type!=='rest')){
+      return {plan: dp, originalDate: d}; // 最近的训练日漏练了
+    }
+    break; // 最近的训练日已练，不再往前找
+  }
+  return null;
+}
 
 function getTodayWorkoutWithCarryover(){
   const todayStr = today();
@@ -1116,8 +1249,8 @@ function getTodayWorkoutWithCarryover(){
         const upperName = cycle === 'A' ? '上肢混合（经期替代）' : '上肢混合B（经期替代）';
         plan = { ...plan, name: upperName, type: upperType, _periodModified: true };
       }
-      if(!plan){
-        return {plan:null, workout:null, isLogged:false, isRest:true, isCarryover:false, isPeriodRest:true, periodMsg: periodAdj.msg + '（今日无计划，建议休息）', originalDate:null};
+      if(!plan || plan.category === 'rest'){
+        return {plan:null, workout:null, isLogged:false, isRest:true, isCarryover:false, isPeriodRest:true, periodMsg: periodAdj.msg + '（今日休息，建议放松）', originalDate:null};
       }
       return {plan, workout:null, isLogged:false, isRest:false, isCarryover:false, isPeriodUpper:true, periodMsg: periodAdj.msg, originalDate:null};
     }
@@ -1126,20 +1259,22 @@ function getTodayWorkoutWithCarryover(){
   const w = DB.workouts.find(x=>x.date===todayStr);
   if(w) return {plan:null, workout:w, isLogged:true, isRest:false, isCarryover:false, originalDate:null};
   
-  for(let i=0;i<planArr.length;i++){
-    const item = planArr[i];
-    if(item.completed) continue;
-    const due = item.lastScheduledDate;
-    if(!due || due>todayStr) continue;
-    if(due<todayStr){
-      const original = due;
-      item.lastScheduledDate = todayStr;
-      saveDB();
-      return {plan:item, workout:null, isLogged:false, isRest:false, isCarryover:true, originalDate:original};
-    }
-    return {plan:item, workout:null, isLogged:false, isRest:false, isCarryover:false, originalDate:null};
+  // 7 天周期：按星期几查找固定计划
+  const wd = dow(todayStr);
+  const todayPlan = planArr.find(p => p.day === wd);
+
+  // 今天有训练安排（力量/有氧）→ 正常返回
+  if(todayPlan && todayPlan.category !== 'rest'){
+    return {plan: todayPlan, workout:null, isLogged:false, isRest:false, isCarryover:false, originalDate:null};
   }
-  return {plan:null, workout:null, isLogged:false, isRest:true, isCarryover:false, originalDate:null};
+
+  // 今天是休息日 → 检查最近是否有漏练的训练日需要顺延
+  const carry = findCarryoverForDate(todayStr);
+  if(carry){
+    return {plan: carry.plan, workout:null, isLogged:false, isRest:false, isCarryover:true, originalDate: carry.originalDate};
+  }
+
+  return {plan:null, workout:null, isLogged:false, isRest:true, isCarryover:false, originalDate:null, restPlan: todayPlan || null};
 }
 // Keep backward compat alias (unused by core flow after this patch)
 const getTodayWorkout = getTodayWorkoutWithCarryover;
@@ -1236,6 +1371,33 @@ function habitStreak(field){
     d = addDays(d,-1);
   }
   return streak;
+}
+
+/* ============ 碳循环 / 饮食-训练联动 ============ */
+function getCarbCycleType(date){
+  const w = DB.workouts.find(x=>x.date===date && x.type!=='rest');
+  if(!w) return 'low'; // 休息日→低碳
+  const t = w.type || '';
+  if(t.includes('legs')) return 'high'; // 练腿日→高碳
+  return 'medium'; // 上肢日→中碳
+}
+function getCarbCycleAdvice(date){
+  const type = getCarbCycleType(date);
+  const s = DB.settings;
+  const base = {cal:s.caloriesGoal, pro:s.proteinGoal, carb:s.carbsGoal, fat:s.fatGoal};
+  if(type==='high'){
+    return {type, label:'高碳日', desc:'练腿日：肌糖原需求高',
+      cal:Math.round(base.cal*1.05), carb:Math.round(base.carb*1.2), fat:Math.round(base.fat*0.9), pro:base.pro,
+      tip:'练腿日碳水提升至 '+Math.round(base.carb*1.2)+'g，脂肪适当降低'};
+  }
+  if(type==='low'){
+    return {type, label:'低碳日', desc:'休息日：降低碳水，提高脂肪',
+      cal:Math.round(base.cal*0.95), carb:Math.round(base.carb*0.8), fat:Math.round(base.fat*1.1), pro:base.pro,
+      tip:'休息日碳水降至 '+Math.round(base.carb*0.8)+'g，脂肪可适量增加'};
+  }
+  return {type, label:'中碳日', desc:'上肢训练日：标准配比',
+    cal:base.cal, carb:base.carb, fat:base.fat, pro:base.pro,
+    tip:'上肢训练日保持标准宏量营养素配比'};
 }
 
 /* ============ 长期目标系统 ============ */
@@ -1494,6 +1656,12 @@ function renderHome(){
   const habit = getHabitOn(today()) || {sleepEarly:false,stretch:false,meditate:false,drinkMore:false};
   const period = getPeriodStatus();
 
+  // 功能四：日常步数（NEAT）
+  const todaySteps = (DB.steps||[]).find(x=>x.date===today());
+  const stepCount = todaySteps ? todaySteps.count : 0;
+  const stepGoal = DB.settings.stepsGoal || 8000;
+  const stepCal = Math.round(stepCount * 0.04);
+
   let html = `<div class="header"><div class="row" style="gap:10px">
     <div class="avatar" style="width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid var(--primary);flex-shrink:0;background:var(--bg-soft)">
       <img src="${getAvatar()}" alt="头像" onerror="this.style.display='none';this.parentNode.insertAdjacentHTML('beforeend', letterAvatarFallback('${(s.nickname||'?')[0]}'))" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:50%">
@@ -1636,6 +1804,7 @@ function renderHome(){
   const bmrVal = bmr(s);
   const hasWorkoutToday = DB.workouts.some(w=>w.date===today() && w.type!=='rest');
   const activityCal = Math.round(bmrVal * (hasWorkoutToday?0.45:0.25));
+  const totalBurn = bmrVal + activityCal + stepCal;
   const diff = nut.cal - s.caloriesGoal; // 正数=多吃，负数=还可吃
 
   html += `<div class="section-title">今日饮食与热量</div>`;
@@ -1650,11 +1819,43 @@ function renderHome(){
     <div class="grid grid-2" style="gap:8px;margin-bottom:10px;font-size:12px">
       <div class="kv"><span class="k">基础代谢</span><span class="v">${bmrVal|0} kcal</span></div>
       <div class="kv"><span class="k">活动消耗</span><span class="v">${activityCal} kcal</span></div>
+      <div class="kv"><span class="k">步数消耗</span><span class="v">${stepCal} kcal</span></div>
+      <div class="kv"><span class="k">总消耗</span><span class="v info">${totalBurn|0} kcal</span></div>
       <div class="kv"><span class="k">目标摄入</span><span class="v primary">${s.caloriesGoal} kcal</span></div>
       <div class="kv"><span class="k">当前状态</span><span class="v ${diff>0?'accent':'primary'}">${diff>0?'多吃 '+diff+' kcal':'还可 '+(s.caloriesGoal-nut.cal)+' kcal'}</span></div>
     </div>
     ${diff>0?`<div style="margin-bottom:10px;padding:10px;border-radius:10px;background:rgba(255,107,53,.08);border:1px solid var(--accent-soft);font-size:12px;line-height:1.6;color:var(--fg-dim)"><span class="accent" style="font-weight:700">训练建议：</span>${getOvereatAdvice(diff,nut)}</div>`:''}
+    ${(()=>{
+      const cc = getCarbCycleAdvice(today());
+      return `<div style="margin-bottom:10px;padding:10px;border-radius:10px;background:var(--primary-soft);border:1px solid var(--primary-soft);font-size:12px;line-height:1.6">
+        <span class="primary" style="font-weight:700">${cc.label} · ${cc.desc}</span><br>
+        <span class="muted">建议：热量${cc.cal}kcal · 碳水${cc.carb}g · 脂肪${cc.fat}g · 蛋白${cc.pro}g</span><br>
+        <span class="muted">${cc.tip}</span>
+      </div>`;
+    })()}
     <button class="btn ghost block" style="margin-top:4px" onclick="navigate('log');switchLogTab('meal')">${icon('i-plus')}添加饮食 / 查看规划</button>
+  </div>`;
+
+  // 功能四：步数卡片
+  const stepPct = ringPct(stepCount, stepGoal);
+  html += `<div class="section-title">步数</div>`;
+  html += `<div class="card">
+    <div class="row" style="gap:14px;align-items:center">
+      <div class="ring" style="width:84px;height:84px;flex-shrink:0">
+        <svg width="84" height="84" viewBox="0 0 100 100">
+          <circle class="ring-bg" cx="50" cy="50" r="44" fill="none" stroke-width="8"/>
+          <circle class="ring-fg info" cx="50" cy="50" r="44" fill="none" stroke-width="8" stroke-linecap="round"
+            stroke-dasharray="${ringStroke(stepPct,44).strokeDasharray}" stroke-dashoffset="${ringStroke(stepPct,44).strokeDashoffset}"/>
+        </svg>
+        <div class="ring-label"><div class="v" style="font-size:16px">${stepPct}%</div></div>
+      </div>
+      <div style="flex:1">
+        <div class="row between"><span class="muted" style="font-size:12px">今日步数</span><span style="font-weight:700">${stepCount}</span></div>
+        <div class="row between" style="margin-top:4px"><span class="muted" style="font-size:12px">目标</span><span>${stepGoal}</span></div>
+        <div class="row between" style="margin-top:4px"><span class="muted" style="font-size:12px">消耗热量</span><span class="info" style="font-weight:700">${stepCal} kcal</span></div>
+      </div>
+    </div>
+    <button class="btn primary block" style="margin-top:10px" onclick="openStepsModal()">${icon('i-walk')}记录步数</button>
   </div>`;
 
   // Water otter
@@ -1881,28 +2082,38 @@ function renderTrain(){
   let cells = '';
   ['日','一','二','三','四','五','六'].forEach(d=> cells += `<div class="dow">${d}</div>`);
   for(let i=0;i<startDow;i++) cells += `<div class="day empty"></div>`;
-  for(let d=1;d<=days;d++){
+  for(let d=1; d<=days; d++){
     const ds = `${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isToday = ds===today();
     const hasW = DB.workouts.some(w=>w.date===ds);
     const isPeriod = DB.period.some(p=>ds>=p.start && ds<=(p.end||addDays(p.start,4)));
     const wd = new Date(y,mo,d).getDay();
-    const isRest = ![1,3,5,0].includes(wd);
+
+    const planArr = DB.plans[DB.plans.currentCycle] || DB.plans.A;
+    const dayPlan = planArr.find(p => p.day === wd);
+
     let cls = 'day';
     if(isToday) cls += ' today';
     if(hasW) cls += ' has-workout';
-    else if(isRest) cls += ' rest';
+    else if(dayPlan && dayPlan.category === 'cardio') cls += ' cardio';
+    else if(dayPlan && dayPlan.category === 'rest') cls += ' rest';
+    else if(!dayPlan) cls += ' rest';
+
     if(isPeriod) cls += ' period';
-    const dot = isPeriod?'<div class="dot accent"></div>':(hasW?'<div class="dot"></div>':'');
+
+    let dot = '';
+    if(isPeriod) dot = '<div class="dot accent"></div>';
+    else if(hasW) dot = '<div class="dot"></div>';
+    else if(dayPlan && dayPlan.category === 'cardio') dot = '<div class="dot" style="background:var(--info)"></div>';
+
     cells += `<div class="${cls}" onclick="selectDate('${ds}')">${d}${dot}</div>`;
   }
   const selected = state.selectedDate;
   const selW = DB.workouts.find(w=>w.date===selected);
   const selPlan = (()=>{
     const wd = dow(selected);
-    if(![1,3,5,0].includes(wd)) return null;
     const arr = DB.plans[DB.plans.currentCycle]||DB.plans.A;
-    return arr.find(p=>p.day===wd);
+    return arr.find(p=>p.day===wd) || null;
   })();
 
   const prevM = new Date(y, mo-1, 1);
@@ -1931,7 +2142,9 @@ function renderTrain(){
   });
   html += `</div></div>`;
 
-  // 检查选中日期是否处于经期
+  // Selected day
+  html += `<div class="section-title">${fmtDate(selected)} ${'日一二三四五六'[dow(selected)]}</div>`;
+
   const selPeriod = (() => {
     if(!DB.period.length) return null;
     const p = DB.period.find(x => selected >= x.start && selected <= (x.end || addDays(x.start, 4)));
@@ -1939,10 +2152,7 @@ function renderTrain(){
     const dayNum = diffDays(selected, p.start) + 1;
     return { ...p, dayNum };
   })();
-  
-  // Selected day
-  html += `<div class="section-title">${fmtDate(selected)} ${'日一二三四五六'[dow(selected)]}</div>`;
-  
+
   if(selW){
     html += renderWorkoutSummary(selW);
     if(selPeriod && selPeriod.dayNum <= 5){
@@ -1952,52 +2162,96 @@ function renderTrain(){
         </div>
       </div>`;
     }
-  }else if(selPeriod && selPeriod.dayNum <= 3 && selPeriod.flow !== '少'){
+  }
+  /* ---- 有氧日卡片 ---- */
+  else if(selPlan && selPlan.category === 'cardio'){
     html += `<div class="card">
       <div class="row between" style="margin-bottom:8px">
-        <h3 style="margin:0">${icon('i-heart')}经期第${selPeriod.dayNum}天</h3>
-        <span class="tag accent">强制休息</span>
+        <h3 style="margin:0">${icon('i-walk')}${selPlan.name}</h3>
+        <span class="tag info">${DB.plans.currentCycle}循环</span>
       </div>
-      <p class="muted" style="margin-bottom:10px;font-size:13px">经期前3天建议完全休息或低强度恢复，可进行散步、拉伸。</p>
-      <div class="grid grid-2">
-        ${REST_TYPES.map(r=>`<button class="btn ghost" onclick="startRest('${r.key}','${selected}')">${icon(r.icon)}${r.name}</button>`).join('')}
+      <p class="muted" style="margin-bottom:10px;font-size:13px">
+        低冲击有氧训练，保护膝盖。建议总时长 30–45 分钟，心率保持在最大心率的 60%–70%。
+      </p>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+        ${EXERCISES[selPlan.type].map(e=>`<div class="row between" style="padding:10px 12px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border)">
+          <span style="font-size:13px;font-weight:600">${e.n}</span>
+          <span class="dim" style="font-size:12px">${e.m}</span>
+        </div>`).join('')}
       </div>
+      <div class="grid grid-2" style="gap:8px;margin-bottom:12px">
+        <button class="btn ghost" onclick="openCardioModal('swim')">${icon('i-swim')}游泳</button>
+        <button class="btn ghost" onclick="openCardioModal('elliptical')">${icon('i-walk')}椭圆机</button>
+        <button class="btn ghost" onclick="openCardioModal('cycle')">${icon('i-walk')}骑行</button>
+        <button class="btn ghost" onclick="openCardioModal('rower')">${icon('i-dumbbell')}划船机</button>
+      </div>
+      <button class="btn block primary" onclick="startWorkoutForToday()">${icon('i-play')}开始有氧训练</button>
     </div>`;
-  }else if(selPeriod && selPeriod.dayNum >= 4 && selPeriod.dayNum <= 5){
-    const wd = dow(selected);
-    const arr = DB.plans[DB.plans.currentCycle]||DB.plans.A;
-    let plan = arr.find(x=>x.day===wd);
-    let isLegs = plan && (plan.type||'').includes('legs');
-    let displayName = isLegs ? '上肢混合（经期替代）' : (plan ? plan.name : '休息日');
-    
-    html += `<div class="card">
-      <div class="row between" style="margin-bottom:8px">
-        <h3 style="margin:0">${icon('i-dumbbell')}${displayName}</h3>
-        <span class="tag accent">经期第${selPeriod.dayNum}天</span>
-      </div>
-      <div style="padding:10px;border-radius:8px;background:rgba(255,107,53,.08);border:1px solid var(--accent-soft);font-size:12px;line-height:1.6;margin-bottom:10px">
-        <span class="accent" style="font-weight:700">经期提示：</span>推荐低强度上肢训练，跳过腿部动作。建议降低重量20%，避免核心压迫。
-      </div>
-      ${plan && !isLegs ? 
-        `<button class="btn block primary" onclick="startWorkoutForToday()">${icon('i-play')}开始训练</button>` : 
-        `<button class="btn block primary" onclick="startPeriodUpperWorkout('${selected}')">${icon('i-play')}开始经期上肢训练</button>`
-      }
-    </div>`;
-  }else if(selPlan){
+  }
+  /* ---- 休息日卡片（有漏练的训练日则顺延补练） ---- */
+  else if(selPlan && selPlan.category === 'rest'){
+    const carry = (selected === today()) ? findCarryoverForDate(selected) : null;
+    if(carry){
+      const cexs = EXERCISES[carry.plan.type] || [];
+      html += `<div class="card" style="border-color:var(--info);background:rgba(77,171,255,.08)">
+        <div class="row between" style="margin-bottom:8px">
+          <h3 style="margin:0">${icon('i-dumbbell')}${carry.plan.name}</h3>
+          <span class="tag danger">【顺延】原定${fmtDate(carry.originalDate)}</span>
+        </div>
+        <p class="muted" style="margin-bottom:10px;font-size:13px">休息日顺延补做漏练的训练，用训练代替休息。</p>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+          ${cexs.map(e=>`<div class="row between" style="padding:10px 12px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border)">
+            <span style="font-size:13px;font-weight:600">${e.n}</span>
+            <span class="dim" style="font-size:12px">${e.m}</span>
+          </div>`).join('')}
+        </div>
+        <button class="btn block primary" onclick="startWorkoutForToday()">${icon('i-play')}开始补练</button>
+        <div style="margin-top:12px;border-top:1px solid var(--border-soft);padding-top:10px">
+          <div class="muted" style="font-size:12px;margin-bottom:6px">或选择主动恢复：</div>
+          <div class="grid grid-2">
+            ${REST_TYPES.map(r=>`<button class="btn ghost" onclick="startRest('${r.key}','${selected}')">${icon(r.icon)}${r.name}</button>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    }else{
+      html += `<div class="card">
+        <div class="row between" style="margin-bottom:8px">
+          <h3 style="margin:0">${icon('i-bed')}完全休息</h3>
+          <span class="tag primary">恢复日</span>
+        </div>
+        <p class="muted" style="margin-bottom:10px;font-size:13px">
+          肌肉生长发生在休息中。今天可以进行轻度拉伸、散步或泡沫轴放松。
+        </p>
+        <div class="grid grid-2">
+          ${REST_TYPES.map(r=>`<button class="btn ghost" onclick="startRest('${r.key}','${selected}')">${icon(r.icon)}${r.name}</button>`).join('')}
+        </div>
+      </div>`;
+    }
+  }
+  /* ---- 力量训练日卡片 ---- */
+  else if(selPlan && selPlan.category === 'strength'){
+    const exs = EXERCISES[selPlan.type]||EXERCISES.mixed;
     html += `<div class="card">
       <div class="row between" style="margin-bottom:8px">
         <h3 style="margin:0">${icon('i-dumbbell')}${selPlan.name}</h3>
         <span class="tag accent">${DB.plans.currentCycle}循环</span>
       </div>
-      <p class="muted" style="margin-bottom:10px;font-size:13px">尚未记录训练，开始今天的三段式训练</p>
+      <p class="muted" style="margin-bottom:10px;font-size:13px">${exs.length}个动作 · 预计 ${exs.length*4*1.5|0} 分钟</p>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+        ${exs.map(e=>`<div class="row between" style="padding:10px 12px;border-radius:8px;background:var(--bg-soft);cursor:pointer;border:1px solid var(--border)" onclick="showExerciseDemo('${e.n}','${e.m}')">
+          <span style="font-size:13px;font-weight:600">${e.n}</span>
+          <span class="dim" style="font-size:12px">${e.m} <span style="color:var(--primary);margin-left:4px">查看动作 →</span></span>
+        </div>`).join('')}
+      </div>
       <button class="btn block primary" onclick="startWorkoutForToday()">${icon('i-play')}开始训练</button>
     </div>`;
-  }else{
+  }
+  else {
     html += `<div class="card">
       <h3 style="margin:0 0 8px">${icon('i-bed')}休息日</h3>
       <p class="muted" style="margin-bottom:10px;font-size:13px">主动恢复，让身体修复</p>
       <div class="grid grid-2">
-      ${REST_TYPES.map(r=>`<button class="btn ghost" onclick="startRest('${r.key}','${selected}')">${icon(r.icon)}${r.name}</button>`).join('')}
+        ${REST_TYPES.map(r=>`<button class="btn ghost" onclick="startRest('${r.key}','${selected}')">${icon(r.icon)}${r.name}</button>`).join('')}
       </div>
     </div>`;
   }
@@ -2240,16 +2494,16 @@ function editWorkout(id){
   activeWorkout = {
     date: w.date,
     plan: {name: w.dayName, type: w.type},
-    warmups: (w.warmups||[]).length ? w.warmups : WARMUPS.map(name=>({name,done:false,duration:0})),
+      warmups: (w.warmups||[]).length ? w.warmups : getWarmupsByType(w.type).map(name=>({name,done:false,duration:0})),
     exercises: (w.exercises||[]).map(e=>({
       id: e.id || uid(),
       name: e.name,
       muscle: e.muscle,
       supersetId: e.supersetId,
-      sets: e.sets.map(s=>({weight:s.weight||'',reps:s.reps||'',rpe:s.rpe||'',failure:!!s.failure,note:s.note||''})),
+      sets: e.sets.map(s=>({weight:s.weight||'',reps:s.reps||'',rpe:s.rpe||'',failure:!!s.failure,note:s.note||'',tempo:s.tempo||''})),
       notes: e.notes||''
     })),
-    stretches: (w.stretches||[]).length ? w.stretches : STRETCHES.map(name=>({name,done:false,duration:0})),
+       stretches: (w.stretches||[]).length ? w.stretches : getStretchesByType(w.type).map(name=>({name,done:false,duration:0})),
     startTime: Date.now() - (w.duration||0)*60000,
     phase: 'warmup',
     editingId: id
@@ -2266,30 +2520,69 @@ function startWorkoutForToday(){
     toast('该日期已有训练记录');
     return;
   }
-  let p = null;
-  const arr = DB.plans[DB.plans.currentCycle]||DB.plans.A;
-  if(todayStr===today()){
-    // Use carryover-aware plan for today
-    const tw = getTodayWorkoutWithCarryover();
 
+  let p = null;
+  const arr = DB.plans[DB.plans.currentCycle] || DB.plans.A;
+
+  if(todayStr === today()){
+    const tw = getTodayWorkoutWithCarryover();
     p = tw.plan;
     if(!p && !tw.isRest){ toast('今日训练状态异常，请重试'); return; }
     if(tw.isRest){ toast('今天是休息日'); return; }
   }else{
-    // For arbitrary calendar dates: use day-of-week fixed schedule
     const wd = dow(todayStr);
-    p = arr.find(x=>x.day===wd);
+    p = arr.find(x => x.day === wd);
   }
-  if(!p){ toast('今天是休息日'); return; }
-  const exs = EXERCISES[p.type]||EXERCISES.mixed;
+
+  if(!p){ toast('今天没有安排'); return; }
+  if(p.category === 'rest'){ toast('今天是休息日'); return; }
+
+  /* ---- 有氧日：进入三段式训练流程 ---- */
+  if(p.category === 'cardio'){
+    const exs = EXERCISES[p.type] || [];
+    activeWorkout = {
+      date: todayStr,
+      plan: p,
+      warmups: getWarmupsByType(p.type).map(w=>({name:w,done:false,duration:0})),
+      exercises: exs.map((e,i)=>({
+        id:uid(), name:e.n, muscle:e.m, supersetId:null,
+        sets: Array.from({length:4}, ()=>({
+          weight:'', reps:'', rpe:'', failure:false, note:'', tempo:''
+        })),
+        notes:''
+      })),
+      stretches: getStretchesByType(p.type).map(s=>({name:s,done:false,duration:0})),
+      startTime: Date.now(),
+      phase: 'warmup',
+      isCardio: true
+    };
+    renderActiveWorkout();
+    toast('已加载有氧训练计划，建议总时长 30–45 分钟');
+    return;
+  }
+
+  /* ---- 力量训练日（原有逻辑） ---- */
+  const exs = EXERCISES[p.type] || EXERCISES.mixed;
+  const deload = getDeloadAdjustment();
   activeWorkout = {
     date: todayStr, plan: p,
-    warmups: WARMUPS.map(w=>({name:w,done:false,duration:0})),
-    exercises: exs.map((e,i)=>({
-      id:uid(), name:e.n, muscle:e.m, supersetId:e.sup?`ss${i}`:null,
-      sets:[{weight:'',reps:'',rpe:'',failure:false,note:''}], notes:''
-    })),
-    stretches: STRETCHES.map(s=>({name:s,done:false,duration:0})),
+    warmups: getWarmupsByType(p.type).map(w=>({name:w,done:false,duration:0})),
+    exercises: exs.map((e,i)=>{
+      let sid = null;
+      if(e.sup){
+        let gs = i;
+        while(gs > 0 && exs[gs-1].sup) gs--;
+        sid = `ss${gs}`;
+      }
+      let nsets = 4;
+      if(deload) nsets = Math.max(2, Math.floor(nsets / deload.setsDivider));
+      return {
+        id:uid(), name:e.n, muscle:e.m, supersetId:sid,
+        sets: Array.from({length:nsets}, ()=>({weight:'',reps:'',rpe:'',failure:false,note:'',tempo:''})),
+        notes:'', _deload: !!deload
+      };
+    }),
+    stretches: getStretchesByType(p.type).map(s=>({name:s,done:false,duration:0})),
     startTime: Date.now(), phase: 'warmup'
   };
   renderActiveWorkout();
@@ -2309,12 +2602,12 @@ function startPeriodUpperWorkout(date){
   activeWorkout = {
     date: date,
     plan: { name: planName, type: upperType, _periodModified: true },
-    warmups: WARMUPS.map(w=>({name:w,done:false,duration:0})),
+    warmups: getWarmupsByType(upperType).map(w=>({name:w,done:false,duration:0})),
     exercises: exs.map((e,i)=>({
       id:uid(), name:e.n, muscle:e.m, supersetId:e.sup?`ss${i}`:null,
-      sets:[{weight:'',reps:'',rpe:'',failure:false,note:''}], notes:''
+      sets:[{weight:'',reps:'',rpe:'',failure:false,note:'',tempo:''}], notes:''
     })),
-    stretches: STRETCHES.map(s=>({name:s,done:false,duration:0})),
+    stretches: getStretchesByType(upperType).map(s=>({name:s,done:false,duration:0})),
     startTime: Date.now(), phase: 'warmup',
     isPeriodUpper: true
   };
@@ -2329,14 +2622,15 @@ function renderActiveWorkout(){
   // 经期训练提示
   const periodAdj = getPeriodTrainingAdjustment();
   const isPeriodTraining = periodAdj && periodAdj.type === 'upperOnly';
-  
+  const isCardio = aw.isCardio;
+
   const c = document.getElementById('content');
   const wDone = aw.warmups.filter(w=>w.done).length;
   const sDone = aw.stretches.filter(s=>s.done).length;
   const exDone = aw.exercises.filter(e=>e.sets.every(s=>s.weight)).length;
   c.innerHTML = `
     <div class="header">
-      <div><h1>${aw.plan.name}<span class="sub">${fmtDate(aw.date)} · ${DB.plans.currentCycle}循环</span></h1></div>
+      <div><h1>${aw.plan.name}<span class="sub">${fmtDate(aw.date)} · ${DB.plans.currentCycle}循环${isCardio?' · 有氧模式':''}</span></h1></div>
       <button class="btn ghost sm" onclick="cancelWorkout()">${icon('i-x')}取消</button>
     </div>
     <div class="card" style="background:var(--bg-elev)">
@@ -2347,6 +2641,15 @@ function renderActiveWorkout(){
         <div><div class="muted" style="font-size:11px">计时</div><div class="big" id="wkTimer">00:00</div></div>
       </div>
       </div>
+    ${isCardio ? `<div class="card" style="background:rgba(77,171,255,.1);border-color:var(--info);margin-bottom:12px">
+      <div class="row" style="gap:10px;align-items:center">
+        <div class="ico" style="background:rgba(77,171,255,.2);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">${icon('i-walk')}</div>
+        <div style="font-size:13px;line-height:1.6">
+          <span style="color:var(--info);font-weight:700">有氧模式：</span>建议总时长 30–45 分钟，心率保持在最大心率的 60%–70%。
+          重量栏填时长（分钟），次数栏填距离/心率，RPE 填主观疲劳度。
+        </div>
+      </div>
+    </div>` : ''}
     ${isPeriodTraining ? `<div class="card" style="border-color:var(--accent);background:rgba(255,107,53,.08);margin-bottom:12px">
       <div class="row" style="gap:10px;align-items:center">
         <div class="ico" style="background:var(--accent-soft);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">${icon('i-heart')}</div>
@@ -2355,16 +2658,28 @@ function renderActiveWorkout(){
         </div>
       </div>
     </div>` : ''}
+    ${(()=>{
+      const dl = getDeloadAdjustment();
+      if(!dl) return '';
+      return `<div class="card" style="border-color:var(--info);background:rgba(77,171,255,.1);margin-bottom:12px">
+        <div class="row" style="gap:10px;align-items:center">
+          <div class="ico" style="background:rgba(77,171,255,.2);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">${icon('i-bed')}</div>
+          <div style="font-size:13px;line-height:1.6">
+            <span style="color:var(--info);font-weight:700">减载周提示：</span>${dl.msg}。组间休息可延长至 2-3 分钟，专注动作质量。
+          </div>
+        </div>
+      </div>`;
+    })()}
     <div class="section-title">① 热身（${wDone}/${aw.warmups.length}）</div>
     ${aw.warmups.map((w,i)=>warmupRow(w,i)).join('')}
-    <div class="section-title">② 正式训练</div>
+    <div class="section-title">② ${isCardio?'有氧训练':'正式训练'}</div>
     ${aw.exercises.map((e,i)=>exerciseRow(e,i)).join('')}
     <div class="section-title">③ 拉伸（${sDone}/${aw.stretches.length}）</div>
     ${aw.stretches.map((s,i)=>stretchRow(s,i)).join('')}
     <div class="section-title">完成记录</div>
     <div class="card">
       <div class="field-row">
-        <div class="field"><label class="label">训练时长(分)</label><input type="number" id="wkDuration" value="${Math.max(30,Math.round((Date.now()-aw.startTime)/60000))}"></div>
+        <div class="field"><label class="label">训练时长(分)</label><input type="number" id="wkDuration" value="${Math.max(1,Math.round((Date.now()-aw.startTime)/60000))}" readonly></div>
         <div class="field"><label class="label">体感(1-10)</label><input type="number" id="wkFeel" min="1" max="10" value="7"></div>
       </div>
       <div class="field-row">
@@ -2436,14 +2751,16 @@ function finishWarmup(i){
 }
 
 function exerciseRow(e,i){
+  const isCardio = activeWorkout && activeWorkout.isCardio;
   const setsHtml = e.sets.map((s,si)=>`
     <div class="set-row">
       <div class="set-no">${si+1}</div>
       <input type="number" placeholder="kg" value="${s.weight}" oninput="updateSet(${i},${si},'weight',this.value)">
       <input type="number" placeholder="次" value="${s.reps}" oninput="updateSet(${i},${si},'reps',this.value)">
       <input type="number" placeholder="RPE" step="0.5" value="${s.rpe}" oninput="updateSet(${i},${si},'rpe',this.value)">
+      <input placeholder="3-1-2-0" value="${s.tempo||''}" oninput="updateSet(${i},${si},'tempo',this.value)">
       <button class="btn ${s.failure?'accent':'ghost'} sm" style="padding:2px 6px;font-size:11px;min-width:40px" onclick="toggleFailure(${i},${si})">${s.failure?'已力竭':'力竭'}</button>
-      <button class="btn ghost sm" style="padding:2px 6px;font-size:11px;min-width:44px" onclick="restTimer(${DB.settings.restBetweenSets})">休息</button>
+      <button class="btn ghost sm" style="padding:2px 6px;font-size:11px;min-width:44px" onclick="startSetTimer(${i},${si},${DB.settings.restBetweenSets})">休息</button>
     </div>
   `).join('');
 
@@ -2485,9 +2802,10 @@ function exerciseRow(e,i){
     </div>
     <div class="set-row" style="margin-bottom:4px">
       <div class="set-no">#</div>
-      <div class="muted" style="font-size:10px;text-align:center">重量(kg)</div>
-      <div class="muted" style="font-size:10px;text-align:center">次数</div>
+      <div class="muted" style="font-size:10px;text-align:center">${isCardio?'时长(min)':'重量(kg)'}</div>
+      <div class="muted" style="font-size:10px;text-align:center">${isCardio?'距离/心率':'次数'}</div>
       <div class="muted" style="font-size:10px;text-align:center">RPE</div>
+      <div class="muted" style="font-size:10px;text-align:center">Tempo</div>
       <div class="muted" style="font-size:10px;text-align:center">力竭</div>
       <div class="muted" style="font-size:10px;text-align:center">休息</div>
     </div>
@@ -2496,6 +2814,11 @@ function exerciseRow(e,i){
   </div>`;
 }
 
+function startSetTimer(ei,si,seconds){
+  activeWorkout.exercises[ei].sets[si].startTime = Date.now();
+  restTimer(seconds);
+  renderActiveWorkout();
+}
 function updateSet(ei,si,field,val){
   activeWorkout.exercises[ei].sets[si][field] = val;
 }
@@ -2504,7 +2827,7 @@ function toggleFailure(ei,si){
   renderActiveWorkout();
 }
 function addSet(i){
-  activeWorkout.exercises[i].sets.push({weight:'',reps:'',rpe:'',failure:false,note:''});
+  activeWorkout.exercises[i].sets.push({weight:'',reps:'',rpe:'',failure:false,note:'',tempo:''});
   renderActiveWorkout();
 }
 function delSet(i){
@@ -2827,7 +3150,8 @@ function cancelWorkout(){
 function finishWorkout(){
   if(!activeWorkout) return;
   const aw = activeWorkout;
-  const duration = parseInt(document.getElementById('wkDuration').value)||0;
+  const autoDuration = Math.max(1, Math.round((Date.now()-aw.startTime)/60000));
+  const duration = autoDuration;
   const feel = parseInt(document.getElementById('wkFeel').value)||7;
   const knee = document.getElementById('wkKnee').value;
   const note = document.getElementById('wkNote').value;
@@ -2835,7 +3159,7 @@ function finishWorkout(){
   const exercises = aw.exercises.map(e=>{
     const sets = e.sets.filter(s=>s.weight && s.reps).map(s=>({
       weight:parseFloat(s.weight)||0, reps:parseInt(s.reps)||0,
-      rpe:s.rpe?parseFloat(s.rpe):null, failure:!!s.failure, note:s.note||''
+      rpe:s.rpe?parseFloat(s.rpe):null, failure:!!s.failure, note:s.note||'', tempo:s.tempo||''
     }));
     const vol = sets.reduce((a,s)=>a+s.weight*s.reps,0);
     const maxW = sets.reduce((a,s)=>Math.max(a,s.weight),0);
@@ -2901,6 +3225,10 @@ function finishWorkout(){
       return;
     }
     DB.workouts.push(w);
+    if(getDeloadAdjustment()){
+      DB.settings.lastDeloadDate = today();
+      toast('减载周训练已记录，身体得到充分恢复');
+    }
     // Mark current item completed, advance next item
     const planArr = DB.plans[DB.plans.currentCycle];
     let idx = planArr.findIndex(x=>x===aw.plan);
@@ -2918,7 +3246,7 @@ function finishWorkout(){
         nxt.lastScheduledDate = addDays(todayStr, gap);
       }
     }
-    if(planArr.every(x=>x.completed)){
+    if(planArr.filter(x=>x.category!=='rest').every(x=>x.completed)){
       const oldCycle = DB.plans.currentCycle;
       const nextCycle = oldCycle==='A'?'B':'A';
       DB.plans.currentCycle = nextCycle;
@@ -3020,7 +3348,8 @@ function renderLog(){
     {k:'water',n:'喝水',i:'i-drop'},
     {k:'body',n:'身体',i:'i-scale'},
     {k:'period',n:'生理期',i:'i-heart'},
-    {k:'habit',n:'习惯',i:'i-check'}
+    {k:'habit',n:'习惯',i:'i-check'},
+    {k:'steps',n:'步数',i:'i-walk'}
   ];
   let html = `<div class="header"><div><h1>记录<span class="sub">历史数据</span></h1></div></div>`;
   html += `<div class="row" style="overflow-x:auto;gap:6px;margin-bottom:14px;flex-wrap:nowrap">`;
@@ -3028,9 +3357,77 @@ function renderLog(){
     html += `<button class="btn ${tab===t.k?'primary':'ghost'} sm" onclick="switchLogTab('${t.k}')">${icon(t.i)}${t.n}</button>`;
   });
   html += `</div>`;
-  const renderers = {workout:renderLogWorkout,cardio:renderLogCardio,meal:renderLogMeal,water:renderLogWater,body:renderLogBody,period:renderLogPeriod,habit:renderLogHabit};
+  const renderers = {workout:renderLogWorkout,cardio:renderLogCardio,meal:renderLogMeal,water:renderLogWater,body:renderLogBody,period:renderLogPeriod,habit:renderLogHabit,steps:renderLogSteps};
   html += renderers[tab]();
   return html;
+}
+
+// 功能四：步数（NEAT）记录
+function renderLogSteps(){
+  const goal = DB.settings.stepsGoal || 8000;
+  const list = [...(DB.steps||[])].sort((a,b)=>a.date<b.date?1:-1).slice(0,14);
+  let html = `<div class="card">
+    <div class="row between" style="margin-bottom:10px">
+      <h3 style="margin:0">${icon('i-walk')}步数记录</h3>
+      <span class="tag primary">目标 ${goal}</span>
+    </div>`;
+  // 近 7 天柱状图
+  const days = [];
+  for(let i=6;i>=0;i--){
+    const d = addDays(today(), -i);
+    const rec = (DB.steps||[]).find(x=>x.date===d);
+    days.push({d:'日一二三四五六'[dow(d)], v: rec?rec.count:0});
+  }
+  const maxV = Math.max(...days.map(x=>x.v), goal);
+  html += `<div class="bars" style="height:100px;margin-bottom:12px">`;
+  days.forEach(x=>{
+    const h = x.v>0?Math.max(2,(x.v/maxV)*100):0;
+    html += `<div class="bar-col"><div class="bar info" style="height:${h}%">${x.v>0?`<div class="bar-val">${x.v}</div>`:''}</div><div class="bar-label">${x.d}</div></div>`;
+  });
+  html += `</div>`;
+  // 近 14 天列表
+  if(!list.length){
+    html += `<div class="empty">${icon('i-walk')}<p>暂无步数记录，点击下方按钮开始记录</p></div>`;
+  }else{
+    list.forEach(x=>{
+      const pct = ringPct(x.count, goal);
+      html += `<div class="hist-item">
+        <div class="ico">${icon('i-walk')}</div>
+        <div class="info">
+          <div class="n">${x.count} 步</div>
+          <div class="m">${fmtDate(x.date)} · ${Math.round(x.count*0.04)} kcal</div>
+          <div class="progress" style="margin-top:4px"><div class="info" style="width:${pct}%;background:var(--info)"></div></div>
+        </div>
+        <span class="tag ${pct>=100?'primary':''}" style="flex-shrink:0">${pct}%</span>
+      </div>`;
+    });
+  }
+  html += `<button class="btn primary block" style="margin-top:10px" onclick="openStepsModal()">${icon('i-plus')}记录今日步数</button>`;
+  html += `</div>`;
+  return html;
+}
+function openStepsModal(){
+  const todayStr = today();
+  const rec = (DB.steps||[]).find(x=>x.date===todayStr);
+  const modal = document.getElementById('modal');
+  modal.innerHTML = `<div class="modal-head"><h2>记录步数</h2><button class="icon-btn" onclick="closeModal()">${icon('i-x')}</button></div>
+    <div class="field"><label class="label">日期</label><input type="date" id="stDate" value="${todayStr}"></div>
+    <div class="field"><label class="label">步数</label><input type="number" id="stCount" placeholder="如 8000" value="${rec?rec.count:''}"></div>
+    <div class="muted" style="font-size:12px;margin-bottom:10px">每 1000 步 ≈ 40 kcal，目标 ${DB.settings.stepsGoal||8000} 步</div>
+    <button class="btn block primary" onclick="saveSteps()">${icon('i-check')}保存</button>`;
+  document.getElementById('modalBg').classList.add('active');
+}
+function saveSteps(){
+  const date = document.getElementById('stDate').value;
+  const count = parseInt(document.getElementById('stCount').value)||0;
+  if(!date){ toast('请选择日期'); return; }
+  if(count<=0){ toast('请输入步数'); return; }
+  DB.steps = (DB.steps||[]).filter(x=>x.date!==date);
+  DB.steps.push({date,count});
+  saveDB();
+  closeModal();
+  render();
+  toast('步数已记录');
 }
 
 // 功能五：有氧模态窗 + 保存 + 列表 + 删除
@@ -3178,6 +3575,7 @@ function renderLogMeal(){
   const meals = getMealsOn(todayStr);
   const nut = sumNutrition(meals);
   const s = DB.settings;
+  const cc = getCarbCycleAdvice(today());
   const bmrVal = bmr(s);
   const hasWorkoutToday = DB.workouts.some(w=>w.date===todayStr && w.type!=='rest');
   const activityCal = Math.round(bmrVal * (hasWorkoutToday?0.45:0.25));
@@ -3275,14 +3673,17 @@ function renderLogMeal(){
   }
   
   // 每日饮食规划
-  html += `<div class="section-title">今日饮食规划</div>`;
+  html += `<div class="section-title">今日饮食规划 · ${cc.label}</div>`;
   html += `<div class="card" style="margin-bottom:14px">
+    <div style="margin-bottom:10px;padding:8px 12px;border-radius:8px;background:var(--primary-soft);border:1px solid var(--primary-soft);font-size:12px">
+      <span class="primary" style="font-weight:700">${cc.label} · ${cc.desc}</span> <span class="muted">${cc.tip}</span>
+    </div>
     <div class="muted" style="font-size:12px;margin-bottom:10px">基于你的目标：${s.goal} · 体重 ${s.weight}kg · ${hasWorkoutToday?'训练日':'休息日'}</div>
     <div class="grid grid-2" style="gap:8px;font-size:12px;margin-bottom:10px">
-      <div class="kv"><span class="k">每日热量目标</span><span class="v primary">${s.caloriesGoal} kcal</span></div>
-      <div class="kv"><span class="k">蛋白质</span><span class="v">${s.proteinGoal}g (${(s.proteinGoal*4/s.caloriesGoal*100).toFixed(0)}%)</span></div>
-      <div class="kv"><span class="k">碳水</span><span class="v">${s.carbsGoal}g (${(s.carbsGoal*4/s.caloriesGoal*100).toFixed(0)}%)</span></div>
-      <div class="kv"><span class="k">脂肪</span><span class="v">${s.fatGoal}g (${(s.fatGoal*9/s.caloriesGoal*100).toFixed(0)}%)</span></div>
+      <div class="kv"><span class="k">每日热量目标</span><span class="v primary">${cc.cal} kcal</span></div>
+      <div class="kv"><span class="k">蛋白质</span><span class="v">${cc.pro}g (${(cc.pro*4/cc.cal*100).toFixed(0)}%)</span></div>
+      <div class="kv"><span class="k">碳水</span><span class="v">${cc.carb}g (${(cc.carb*4/cc.cal*100).toFixed(0)}%)</span></div>
+      <div class="kv"><span class="k">脂肪</span><span class="v">${cc.fat}g (${(cc.fat*9/cc.cal*100).toFixed(0)}%)</span></div>
     </div>
     <div class="hr"></div>
     <div style="font-size:13px;line-height:1.7;color:var(--fg-dim)">
@@ -4806,6 +5207,7 @@ function renderMe(){
       <div><div class="big primary">${DB.body.length}</div><div class="muted">身体</div></div>
       <div><div class="big primary">${DB.meals.length}</div><div class="muted">饮食</div></div>
       <div><div class="big primary">${DB.water.length}</div><div class="muted">喝水</div></div>
+      <div><div class="big primary">${(DB.steps||[]).length}</div><div class="muted">步数</div></div>
       <div><div class="big primary">${DB.habits.length}</div><div class="muted">习惯</div></div>
       <div><div class="big primary">${DB.foods.length}</div><div class="muted">食物</div></div>
     </div>
@@ -4850,13 +5252,17 @@ function showPlanDetail(){
       html += `<div style="margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border-soft)">
         <div style="font-weight:700;font-size:14px;margin-bottom:6px;color:var(--primary)">${['日','一','二','三','四','五','六'][p.day]} · ${p.name}</div>
         <div style="display:flex;flex-direction:column;gap:4px">`;
-      const list = EXERCISES[p.type]||[];
-      list.forEach(e=>{
-        html += `<div class="row between" style="font-size:12px;padding:3px 0">
-          <span>${e.n}</span>
-          <span class="muted">${e.m}${e.sup?' · 超级组':''}</span>
-        </div>`;
-      });
+      if(p.category === 'rest'){
+        html += `<div class="muted" style="font-size:12px;padding:3px 0">完全休息，无训练安排</div>`;
+      }else{
+        const list = EXERCISES[p.type]||[];
+        list.forEach(e=>{
+          html += `<div class="row between" style="font-size:12px;padding:3px 0">
+            <span>${e.n}</span>
+            <span class="muted">${e.m}${e.sup?' · 超级组':''}</span>
+          </div>`;
+        });
+      }
       html += `</div></div>`;
     });
     html += `</div>`;
